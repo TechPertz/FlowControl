@@ -140,6 +140,12 @@ void parse_concatenation(const std::string &line, std::ifstream &flow_file) {
 
 // Function to execute a command
 void execute_command(const Node &node) {
+    std::cout << "Executing command: " << node.name << "\n";
+    for (const auto &cmd : node.command) {
+        std::cout << cmd << " ";
+    }
+    std::cout << std::endl;
+
     std::vector<char*> args;
     for (auto &arg : node.command) {
         args.push_back(const_cast<char*>(arg.c_str()));
