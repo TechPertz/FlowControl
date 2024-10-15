@@ -4,8 +4,9 @@
 #include <map>
 #include <string>
 #include <vector>
-
-#define MAX_LEN 1024
+#include <unistd.h>
+#include <sys/wait.h>
+#include <fcntl.h>
 
 // Struct for nodes, pipes, and concatenations
 struct Node {
@@ -18,15 +19,9 @@ struct FlowPipe {
     std::string to;
 };
 
-struct Concatenation {
-    std::string name;
-    std::vector<std::string> parts;
-};
-
-// Maps for storing nodes, pipes, and concatenations
+// Maps for storing nodes and pipes
 std::map<std::string, Node> nodes;
 std::map<std::string, FlowPipe> pipes;
-std::map<std::string, Concatenation> concatenations;
 
 // Helper function to tokenize command strings, treating quoted strings as a single token
 std::vector<std::string> tokenize_command(const std::string &command_line) {
@@ -61,6 +56,74 @@ std::vector<std::string> tokenize_command(const std::string &command_line) {
     return tokens;
 }
 
+// Function to prepare args for execvp
+std::vector<char*> prepare_args(const Node &node) {
+    std::vector<char*> args;
+    for (const auto &arg : node.command) {
+        args.push_back(const_cast<char*>(arg.c_str()));
+    }
+    args.push_back(nullptr);  // Null-terminated list of arguments
+    return args;
+}
+
+// Function to execute a node command using execvp
+void execute_node(const Node &node) {
+    std::vector<char*> args = prepare_args(node);
+    
+    // Execute the command with execvp
+    if (execvp(args[0], args.data()) == -1) {
+        perror("execvp");
+        exit(EXIT_FAILURE);
+    }
+}
+
+// Function to handle piping between two nodes (e.g., ls | wc)
+void execute_pipe(const FlowPipe &pipe) {
+    int pipefd[2];
+    if (::pipe(pipefd) == -1) {
+        perror("pipe");
+        exit(EXIT_FAILURE);
+    }
+
+    pid_t pid1 = fork();
+    if (pid1 == -1) {
+        perror("fork");
+        exit(EXIT_FAILURE);
+    }
+
+    if (pid1 == 0) {  // Child process 1 (producer - ls)
+        close(pipefd[0]);  // Close unused read end
+        dup2(pipefd[1], STDOUT_FILENO);  // Redirect stdout to pipe write end
+        close(pipefd[1]);  // Close the pipe write end after redirecting
+
+        // Execute the first command (ls)
+        execute_node(nodes[pipe.from]);
+    }
+
+    pid_t pid2 = fork();
+    if (pid2 == -1) {
+        perror("fork");
+        exit(EXIT_FAILURE);
+    }
+
+    if (pid2 == 0) {  // Child process 2 (consumer - wc)
+        close(pipefd[1]);  // Close unused write end
+        dup2(pipefd[0], STDIN_FILENO);  // Redirect stdin to pipe read end
+        close(pipefd[0]);  // Close the pipe read end after redirecting
+
+        // Execute the second command (wc)
+        execute_node(nodes[pipe.to]);
+    }
+
+    // Parent process
+    close(pipefd[0]);
+    close(pipefd[1]);
+
+    // Wait for both processes to finish
+    waitpid(pid1, nullptr, 0);
+    waitpid(pid2, nullptr, 0);
+}
+
 // Function to parse and store a node
 void parse_node(const std::string &line, std::ifstream &flow_file) {
     std::string name, command_line;
@@ -89,11 +152,6 @@ void parse_node(const std::string &line, std::ifstream &flow_file) {
     node.command = tokenize_command(command_line);
 
     nodes[name] = node;
-    std::cout << "Parsed node: " << name << " with command: ";
-    for (const auto &cmd : node.command) {
-        std::cout << cmd << " ";
-    }
-    std::cout << "\n";
 }
 
 // Function to parse and store a pipe
@@ -121,40 +179,6 @@ void parse_pipe(const std::string &line, std::ifstream &flow_file) {
     pipe.to = to;
 
     pipes[pipe_name] = pipe;
-    std::cout << "Parsed pipe: " << pipe_name << " from " << from << " to " << to << "\n";
-}
-
-// Function to parse and store a concatenation
-void parse_concatenation(const std::string &line, std::ifstream &flow_file) {
-    std::string concat_name, parts_line;
-    int part_count;
-
-    // Extract concatenation name
-    std::string prefix = "concatenate=";
-    if (line.substr(0, prefix.length()) == prefix) {
-        concat_name = line.substr(prefix.length());
-    } else {
-        std::cerr << "Error: Invalid concatenation format: " << line << "\n";
-        return;
-    }
-
-    std::getline(flow_file, parts_line);
-    sscanf(parts_line.c_str(), "parts=%d", &part_count);
-
-    Concatenation concat;
-    concat.name = concat_name;
-
-    // Parse individual parts
-    for (int i = 0; i < part_count; ++i) {
-        std::string part;
-        std::getline(flow_file, part);
-        part = part.substr(part.find('=') + 1); // Extract part name
-        concat.parts.push_back(part);
-        std::cout << "Added part " << concat.parts[i] << " to concatenation " << concat_name << "\n";
-    }
-
-    concatenations[concat_name] = concat;
-    std::cout << "Parsed concatenation: " << concat_name << " with " << part_count << " parts\n";
 }
 
 // Function to parse the flow file
@@ -163,31 +187,39 @@ void parse_flow_file(std::ifstream &flow_file) {
 
     // Parse the flow file line by line
     while (std::getline(flow_file, line)) {
-        std::cout << "Read line: " << line << "\n";
         if (line.find("node=") == 0) {
             parse_node(line, flow_file);
         } else if (line.find("pipe=") == 0) {
             parse_pipe(line, flow_file);
-        } else if (line.find("concatenate=") == 0) {
-            parse_concatenation(line, flow_file);
         }
     }
 }
 
 int main(int argc, char *argv[]) {
-    if (argc < 2) {
-        std::cerr << "Usage: " << argv[0] << " <flow_file>\n";
+    if (argc < 3) {
+        std::cerr << "Usage: " << argv[0] << " <flow_file> <action>\n";
         exit(1);
     }
 
-    std::ifstream flow_file(argv[1]);
+    std::string flow_file_name = argv[1];
+    std::string action = argv[2];
+
+    std::ifstream flow_file(flow_file_name);
     if (!flow_file.is_open()) {
-        std::cerr << "Error: Could not open flow file " << argv[1] << "\n";
+        std::cerr << "Error: Could not open flow file " << flow_file_name << "\n";
         exit(1);
     }
 
-    std::cout << "Debug: Opening flow file " << argv[1] << "\n";
+    // Parse the flow file
     parse_flow_file(flow_file);
+
+    // Execute the action (pipe)
+    if (pipes.find(action) != pipes.end()) {
+        execute_pipe(pipes[action]);
+    } else {
+        std::cerr << "Error: Unknown action '" << action << "'\n";
+        return 1;
+    }
 
     return 0;
 }
