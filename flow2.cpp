@@ -139,7 +139,7 @@ void parse_concatenation(const std::string &line, std::ifstream &flow_file) {
 }
 
 // Function to execute a command and capture its output
-void execute_command(const Node &node, int input_fd = STDIN_FILENO) {
+void execute_command(const Node &node, int input_fd = STDIN_FILENO, int output_fd = STDOUT_FILENO) {
     std::cout << "Executing command: " << node.name << "\n";
     for (const auto &cmd : node.command) {
         std::cout << cmd << " ";
@@ -157,9 +157,25 @@ void execute_command(const Node &node, int input_fd = STDIN_FILENO) {
         close(input_fd);  // Close the file descriptor
     }
 
+    if (output_fd != STDOUT_FILENO) {
+        dup2(output_fd, STDOUT_FILENO);  // Redirect stdout to output_fd
+        close(output_fd);  // Close the file descriptor
+    }
+
     if (execvp(args[0], args.data()) == -1) {
         std::cerr << "Error: Failed to execute command: " << args[0] << "\n";
         exit(EXIT_FAILURE);
+    }
+}
+
+// Function to capture and print data flow between commands
+void capture_and_print(int input_fd, int output_fd) {
+    char buffer[256];
+    ssize_t bytes_read;
+    while ((bytes_read = read(input_fd, buffer, sizeof(buffer) - 1)) > 0) {
+        buffer[bytes_read] = '\0';  // Null-terminate the buffer
+        write(output_fd, buffer, bytes_read);  // Forward the output to the next command
+        std::cout << "Debug: Data passed: " << buffer << "\n";  // Print data flow
     }
 }
 
@@ -177,6 +193,7 @@ void execute_pipe(const FlowPipe &pipe) {
         dup2(pipe_fds[1], STDOUT_FILENO); // Redirect stdout to write end
         close(pipe_fds[1]); // Close write end
 
+        std::cout << "Executing command: " << nodes[pipe.from].name << " (output redirected to pipe)\n";
         execute_command(nodes[pipe.from]);
     }
 
@@ -186,6 +203,7 @@ void execute_pipe(const FlowPipe &pipe) {
         dup2(pipe_fds[0], STDIN_FILENO); // Redirect stdin to read end
         close(pipe_fds[0]); // Close read end
 
+        std::cout << "Executing command: " << nodes[pipe.to].name << " (input from pipe)\n";
         execute_command(nodes[pipe.to]);
     }
 
@@ -200,16 +218,39 @@ void execute_pipe(const FlowPipe &pipe) {
 
 // Function to execute a concatenation of nodes or pipes
 void execute_concatenation(const Concatenation &concat) {
-    for (const auto &part : concat.parts) {
+    for (size_t i = 0; i < concat.parts.size(); ++i) {
+        const std::string &part = concat.parts[i];
+
         if (pipes.find(part) != pipes.end()) {
             std::cout << "Executing pipe in concatenation: " << part << "\n";
             execute_pipe(pipes[part]); // Handle pipes in concatenation
         } else if (nodes.find(part) != nodes.end()) {
-            std::cout << "Executing node in concatenation: " << part << "\n";
+            int pipe_fds[2];
+            if (i < concat.parts.size() - 1) {
+                // Create pipe for intermediate commands
+                if (::pipe(pipe_fds) == -1) {
+                    std::cerr << "Error: Failed to create pipe\n";
+                    exit(EXIT_FAILURE);
+                }
+            }
+
             pid_t pid = fork();
             if (pid == 0) {
-                execute_command(nodes[part]); // Execute individual nodes in concatenation
+                if (i < concat.parts.size() - 1) {
+                    close(pipe_fds[0]); // Close read end of pipe
+                    dup2(pipe_fds[1], STDOUT_FILENO); // Redirect output to pipe
+                    close(pipe_fds[1]);
+                }
+                std::cout << "Executing command: " << nodes[part].name << " (part of concatenation)\n";
+                execute_command(nodes[part]);
             }
+
+            if (i < concat.parts.size() - 1) {
+                close(pipe_fds[1]);  // Close write end of pipe
+                dup2(pipe_fds[0], STDIN_FILENO);  // Redirect input to next part
+                close(pipe_fds[0]);
+            }
+
             waitpid(pid, NULL, 0);
         }
     }
