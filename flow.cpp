@@ -4,6 +4,9 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <fcntl.h>
 
 // Structure to represent a node (a command)
 struct Node {
@@ -34,24 +37,16 @@ void parseFlowFile(const std::string &filename) {
 
     std::string line;
     while (std::getline(file, line)) {
-        // Skip empty lines or lines that only contain whitespace
         if (line.empty() || line.find_first_not_of(' ') == std::string::npos) {
             continue;
         }
 
-        std::cout << "Processing line: " << line << std::endl;  // Debug print
-
         std::istringstream iss(line);
         std::string key, value;
         if (std::getline(iss, key, '=') && std::getline(iss, value)) {
-            std::cout << "Key: " << key << ", Value: " << value << std::endl;  // Debug print
-
             if (key.rfind("node", 0) == 0) {
-                // Now handle nodes correctly, and expect the next line to be the command
                 current_node = value;
-                std::cout << "Found node: " << current_node << std::endl;
             } else if (key == "command" && !current_node.empty()) {
-                // Now we're reading the command for the current node
                 std::istringstream cmd_stream(value);
                 std::string cmd;
                 cmd_stream >> cmd;
@@ -63,40 +58,25 @@ void parseFlowFile(const std::string &filename) {
                     node.args.push_back(arg);
                 }
                 nodes[current_node] = node;
-                std::cout << "Parsed node: " << current_node << " with command: " << node.command << std::endl;
-                current_node.clear();  // Clear current node after storing it
+                current_node.clear();
             } else if (key == "pipe") {
-                // Parsing pipe
                 std::string pipe_name = value;
                 std::string from, to;
 
-                // Parsing the 'from' line
                 if (std::getline(file, line)) {
                     std::istringstream from_line(line);
-                    std::string from_key;
-                    if (std::getline(from_line, from_key, '=') && std::getline(from_line, from)) {
-                        std::cout << "Parsed 'from' for pipe: " << from << std::endl;
-                    } else {
-                        std::cerr << "Error: Malformed 'from' line in pipe" << std::endl;
-                    }
+                    std::getline(from_line, key, '=');
+                    std::getline(from_line, from);
                 }
 
-                // Parsing the 'to' line
                 if (std::getline(file, line)) {
                     std::istringstream to_line(line);
-                    std::string to_key;
-                    if (std::getline(to_line, to_key, '=') && std::getline(to_line, to)) {
-                        std::cout << "Parsed 'to' for pipe: " << to << std::endl;
-                    } else {
-                        std::cerr << "Error: Malformed 'to' line in pipe" << std::endl;
-                    }
+                    std::getline(to_line, key, '=');
+                    std::getline(to_line, to);
                 }
 
                 pipes[pipe_name] = {from, to};
-                std::cout << "Parsed pipe: " << pipe_name << " from: " << from << " to: " << to << std::endl;
             } else if (key == "concatenate") {
-                // Parsing concatenation
-                std::string concat_name = value;
                 Concatenation concat;
                 std::getline(file, line);
                 std::istringstream part_line(line);
@@ -108,54 +88,154 @@ void parseFlowFile(const std::string &filename) {
                     part_line >> key >> part_node;
                     concat.part_nodes.push_back(part_node);
                 }
-                concatenations[concat_name] = concat;
-                std::cout << "Parsed concatenation: " << concat_name << " with parts: " << concat.parts << std::endl;
+                concatenations[value] = concat;
             }
-        } else {
-            std::cerr << "Error: Malformed line '" << line << "'" << std::endl;
         }
     }
 }
 
-// Function to print parsed data (for debugging)
-void printParsedData() {
-    std::cout << "\nParsed Nodes:" << std::endl;
-    for (const auto &pair : nodes) {
-        std::cout << "Node Name: " << pair.first << ", Command: " << pair.second.command;
-        if (!pair.second.args.empty()) {
-            std::cout << ", Args: ";
-            for (const auto &arg : pair.second.args) {
-                std::cout << arg << " ";
+// Function to prepare args and handle special cases like sed
+std::vector<char *> prepareArgs(const Node &node) {
+    std::vector<char *> args;
+    args.push_back(const_cast<char *>(node.command.c_str()));
+
+    for (const auto &arg : node.args) {
+        args.push_back(const_cast<char *>(arg.c_str()));
+    }
+
+    args.push_back(nullptr);
+    return args;
+}
+
+// Function to execute a node (command)
+void executeNode(const Node &node) {
+    std::vector<char *> args = prepareArgs(node);
+
+    // Debugging prints
+    std::cout << "Executing command: " << node.command << std::endl;
+    std::cout << "Arguments: ";
+    for (auto arg : args) {
+        if (arg != nullptr) {
+            std::cout << arg << " ";
+        }
+    }
+    std::cout << std::endl;
+
+    if (execvp(args[0], args.data()) == -1) {
+        perror("execvp");
+        exit(1);
+    }
+}
+
+// Function to execute a concatenation of nodes
+void executeConcatenation(const Concatenation &concat) {
+    int prev_fd[2];  // Previous pipe for chaining commands
+    int current_fd[2];
+
+    for (int i = 0; i < concat.parts; ++i) {
+        const std::string &node_name = concat.part_nodes[i];
+        const Node &node = nodes[node_name];
+
+        if (i > 0) {
+            pipe(current_fd);
+        }
+
+        pid_t pid = fork();
+        if (pid == -1) {
+            perror("fork");
+            exit(1);
+        }
+
+        if (pid == 0) {  // Child process
+            if (i > 0) {
+                close(prev_fd[1]);
+                dup2(prev_fd[0], STDIN_FILENO);
+                close(prev_fd[0]);
             }
+
+            if (i < concat.parts - 1) {
+                close(current_fd[0]);
+                dup2(current_fd[1], STDOUT_FILENO);
+                close(current_fd[1]);
+            }
+
+            executeNode(node);
         }
-        std::cout << std::endl;
+
+        if (i > 0) {
+            close(prev_fd[0]);
+            close(prev_fd[1]);
+        }
+
+        if (i < concat.parts - 1) {
+            prev_fd[0] = current_fd[0];
+            prev_fd[1] = current_fd[1];
+        }
+
+        wait(nullptr);
+    }
+}
+
+// Function to execute a pipe
+void executePipe(const std::string &pipe_name) {
+    auto pipe_info = pipes[pipe_name];
+    int fd[2];
+    if (pipe(fd) == -1) {
+        perror("pipe");
+        exit(1);
     }
 
-    std::cout << "\nParsed Pipes:" << std::endl;
-    for (const auto &pair : pipes) {
-        std::cout << "Pipe Name: " << pair.first << ", From: " << pair.second.first << ", To: " << pair.second.second << std::endl;
+    pid_t pid1 = fork();
+    if (pid1 == -1) {
+        perror("fork");
+        exit(1);
     }
 
-    std::cout << "\nParsed Concatenations:" << std::endl;
-    for (const auto &pair : concatenations) {
-        std::cout << "Concatenation Name: " << pair.first << ", Parts: " << pair.second.parts << std::endl;
-        for (const auto &part : pair.second.part_nodes) {
-            std::cout << "  Part Node: " << part << std::endl;
-        }
+    if (pid1 == 0) {
+        close(fd[0]);
+        dup2(fd[1], STDOUT_FILENO);
+        close(fd[1]);
+        executeNode(nodes[pipe_info.first]);
     }
+
+    pid_t pid2 = fork();
+    if (pid2 == -1) {
+        perror("fork");
+        exit(1);
+    }
+
+    if (pid2 == 0) {
+        close(fd[1]);
+        dup2(fd[0], STDIN_FILENO);
+        close(fd[0]);
+        executeNode(nodes[pipe_info.second]);
+    }
+
+    close(fd[0]);
+    close(fd[1]);
+    waitpid(pid1, nullptr, 0);
+    waitpid(pid2, nullptr, 0);
 }
 
 int main(int argc, char *argv[]) {
-    if (argc != 2) {
-        std::cerr << "Usage: " << argv[0] << " <flow_file>" << std::endl;
+    if (argc != 3) {
+        std::cerr << "Usage: " << argv[0] << " <flow_file> <action>" << std::endl;
         return 1;
     }
 
     std::string flow_file = argv[1];
+    std::string action = argv[2];
+
     parseFlowFile(flow_file);
-    
-    // Print parsed data to verify correctness
-    printParsedData();
+
+    if (pipes.find(action) != pipes.end()) {
+        executePipe(action);
+    } else if (concatenations.find(action) != concatenations.end()) {
+        executeConcatenation(concatenations[action]);
+    } else {
+        std::cerr << "Error: Unknown action '" << action << "'." << std::endl;
+        return 1;
+    }
 
     return 0;
 }
