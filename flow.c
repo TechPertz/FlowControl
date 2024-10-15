@@ -75,10 +75,30 @@ void parse_node(char *line, FILE *flow_file) {
 }
 
 // Function to parse a pipe
-void parse_pipe(char *line) {
+void parse_pipe(char *line, FILE *flow_file) {
     printf("Debug: Entered parse_pipe with line=%s\n", line);
-    char from[MAX_LEN], to[MAX_LEN];
-    sscanf(line, "pipe=%*s from=%s to=%s", from, to);
+    char pipe_name[MAX_LEN], from[MAX_LEN], to[MAX_LEN];
+    
+    // Parse the pipe name (if necessary)
+    if (sscanf(line, "pipe=%s", pipe_name) != 1) {
+        printf("Debug: Error parsing pipe name: %s\n", line);
+        return;
+    }
+
+    // Read the 'from' line
+    if (fgets(line, MAX_LEN, flow_file) == NULL) {
+        printf("Debug: Error reading 'from' line\n");
+        return;
+    }
+    sscanf(line, "from=%s", from);
+
+    // Read the 'to' line
+    if (fgets(line, MAX_LEN, flow_file) == NULL) {
+        printf("Debug: Error reading 'to' line\n");
+        return;
+    }
+    sscanf(line, "to=%s", to);
+
     pipes[pipe_count].from = strdup(from);
     pipes[pipe_count].to = strdup(to);
     printf("Debug: Parsed pipe from %s to %s\n", from, to);
@@ -86,24 +106,43 @@ void parse_pipe(char *line) {
 }
 
 // Function to parse a concatenation
-void parse_concatenate(char *line) {
+void parse_concatenate(char *line, FILE *flow_file) {
     printf("Debug: Entered parse_concatenate with line=%s\n", line);
+
     int parts;
     char name[MAX_LEN];
-    sscanf(line, "concatenate=%s parts=%d", name, &parts);
     
+    // Parse the concatenation name and the number of parts
+    if (sscanf(line, "concatenate=%s parts=%d", name, &parts) != 2) {
+        printf("Debug: Error parsing concatenate line: %s\n", line);
+        return;
+    }
+
     concatenations[concat_count].name = strdup(name);
     concatenations[concat_count].part_count = parts;
+    
+    // Loop to parse each part of the concatenation
     for (int i = 0; i < parts; i++) {
+        if (fgets(line, MAX_LEN, flow_file) == NULL) {
+            printf("Debug: Error reading part_%d line\n", i);
+            return;
+        }
+        
+        // Expect the format part_x=<node>
         char part[MAX_LEN];
-        fgets(line, MAX_LEN, stdin); // Read part_x
-        sscanf(line, "part_%d=%s", &i, part);
+        if (sscanf(line, "part_%d=%s", &i, part) != 2) {
+            printf("Debug: Error parsing part_%d line: %s\n", i, line);
+            return;
+        }
+        
         concatenations[concat_count].parts[i] = strdup(part);
-        printf("Debug: Added part %s to concatenation %s\n", part, name);
+        printf("Debug: Added part_%d: %s to concatenation %s\n", i, part, name);
     }
+    
     printf("Debug: Parsed concatenation %s with %d parts\n", name, parts);
     concat_count++;
 }
+
 
 // Function to execute a single command
 void execute_node(Node node) {
@@ -136,16 +175,19 @@ void execute_pipe(FlowPipe flow_pipe) {
     pid_t pid1 = fork();
     if (pid1 == 0) {
         // First command: Redirect stdout to pipe
-        printf("Debug: Forked first child process for pipe\n");
+        printf("Debug: Forked first child process for pipe, from %s\n", flow_pipe.from);
         dup2(pipe_fds[1], STDOUT_FILENO);
         close(pipe_fds[0]);
         close(pipe_fds[1]);
-        
+
         int node_index = find_node_by_name(flow_pipe.from);
         if (node_index != -1) {
             printf("Debug: Executing first command %s\n", nodes[node_index].command[0]);
             execvp(nodes[node_index].command[0], nodes[node_index].command);
             perror("execvp failed");
+            exit(1);
+        } else {
+            printf("Debug: Node %s not found for first command in pipe\n", flow_pipe.from);
             exit(1);
         }
     } else if (pid1 > 0) {
@@ -157,16 +199,19 @@ void execute_pipe(FlowPipe flow_pipe) {
     pid_t pid2 = fork();
     if (pid2 == 0) {
         // Second command: Redirect stdin from pipe
-        printf("Debug: Forked second child process for pipe\n");
+        printf("Debug: Forked second child process for pipe, to %s\n", flow_pipe.to);
         dup2(pipe_fds[0], STDIN_FILENO);
         close(pipe_fds[0]);
         close(pipe_fds[1]);
-        
+
         int node_index = find_node_by_name(flow_pipe.to);
         if (node_index != -1) {
             printf("Debug: Executing second command %s\n", nodes[node_index].command[0]);
             execvp(nodes[node_index].command[0], nodes[node_index].command);
             perror("execvp failed");
+            exit(1);
+        } else {
+            printf("Debug: Node %s not found for second command in pipe\n", flow_pipe.to);
             exit(1);
         }
     } else if (pid2 > 0) {
@@ -206,9 +251,9 @@ void parse_and_execute_flow_file(FILE *flow_file, const char *target) {
         if (strncmp(line, "node", 4) == 0) {
             parse_node(line, flow_file); // Pass the file pointer
         } else if (strncmp(line, "pipe", 4) == 0) {
-            parse_pipe(line);
+            parse_pipe(line, flow_file); // Pass the file pointer
         } else if (strncmp(line, "concatenate", 11) == 0) {
-            parse_concatenate(line);
+            parse_concatenate(line, flow_file); // Pass the file pointer
         }
     }
 
@@ -216,8 +261,8 @@ void parse_and_execute_flow_file(FILE *flow_file, const char *target) {
     printf("Debug: Looking for target %s in pipes and concatenations\n", target);
     for (int i = 0; i < pipe_count; i++) {
         if (strcmp(target, pipes[i].to) == 0 || strcmp(target, pipes[i].from) == 0) {
-            printf("Debug: Found pipe to execute\n");
-            execute_pipe(pipes[i]);
+            printf("Debug: Found pipe to execute, from %s to %s\n", pipes[i].from, pipes[i].to);
+            execute_pipe(pipes[i]); // Call the pipe execution logic
             found = 1;
             break;
         }
@@ -225,7 +270,7 @@ void parse_and_execute_flow_file(FILE *flow_file, const char *target) {
 
     for (int i = 0; i < concat_count; i++) {
         if (strcmp(target, concatenations[i].name) == 0) {
-            printf("Debug: Found concatenation to execute\n");
+            printf("Debug: Found concatenation to execute: %s\n", concatenations[i].name);
             execute_concatenate(concatenations[i]);
             found = 1;
             break;
