@@ -1,0 +1,40 @@
+# Node 1: echo "foo bar baz"
+node=echo_foo
+command=echo "foo bar baz"
+
+# Node 2: cat (inside group)
+node=cat_node
+command=cat
+
+# Node 3: echo "another foo" (inside group)
+node=echo_another
+command=echo "another foo"
+
+# Node 4: sed 's/foo/FUU/g' (inside group)
+node=sed_replace
+command=sed 's/foo/FUU/g'
+
+# Pipe inside group: echo_another | sed_replace
+pipe=another_to_sed
+from=echo_another
+to=sed_replace
+
+# Concatenation inside group: cat ; echo_another | sed_replace
+concatenate=group_commands
+parts=2
+part_0=cat_node
+part_1=another_to_sed
+
+# Pipe from echo_foo to group_commands
+pipe=foo_to_group
+from=echo_foo
+to=group_commands
+
+# Node 5: wc (final node)
+node=word_count
+command=wc
+
+# Pipe from group_commands to word_count
+pipe=group_to_wc
+from=group_commands
+to=word_count
