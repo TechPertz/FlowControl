@@ -46,6 +46,7 @@ std::vector<std::string> tokenize_command(const std::string &command_line) {
 void parse_node(const std::string &line, std::ifstream &flow_file) {
     std::string name, command_line;
 
+    // Extract node name
     std::string prefix = "node=";
     if (line.substr(0, prefix.length()) == prefix) {
         name = line.substr(prefix.length());
@@ -54,13 +55,16 @@ void parse_node(const std::string &line, std::ifstream &flow_file) {
         return;
     }
 
+    // Read command line
     std::getline(flow_file, command_line);
 
+    // Strip out 'command=' from the command line
     std::string command_prefix = "command=";
     if (command_line.substr(0, command_prefix.length()) == command_prefix) {
         command_line = command_line.substr(command_prefix.length());
     }
 
+    // Tokenize and store node command
     Node node;
     node.name = name;
     node.command = tokenize_command(command_line);
@@ -77,6 +81,7 @@ void parse_node(const std::string &line, std::ifstream &flow_file) {
 void parse_pipe(const std::string &line, std::ifstream &flow_file) {
     std::string pipe_name, from, to;
 
+    // Extract pipe name
     std::string prefix = "pipe=";
     if (line.substr(0, prefix.length()) == prefix) {
         pipe_name = line.substr(prefix.length());
@@ -85,11 +90,12 @@ void parse_pipe(const std::string &line, std::ifstream &flow_file) {
         return;
     }
 
+    // Read 'from' and 'to' lines
     std::getline(flow_file, from);
-    from = from.substr(from.find('=') + 1); 
+    from = from.substr(from.find('=') + 1); // Extract 'from'
     
     std::getline(flow_file, to);
-    to = to.substr(to.find('=') + 1); 
+    to = to.substr(to.find('=') + 1); // Extract 'to'
 
     FlowPipe pipe;
     pipe.from = from;
@@ -104,6 +110,7 @@ void parse_concatenation(const std::string &line, std::ifstream &flow_file) {
     std::string concat_name, parts_line;
     int part_count;
 
+    // Extract concatenation name
     std::string prefix = "concatenate=";
     if (line.substr(0, prefix.length()) == prefix) {
         concat_name = line.substr(prefix.length());
@@ -118,10 +125,11 @@ void parse_concatenation(const std::string &line, std::ifstream &flow_file) {
     Concatenation concat;
     concat.name = concat_name;
 
+    // Parse individual parts
     for (int i = 0; i < part_count; ++i) {
         std::string part;
         std::getline(flow_file, part);
-        part = part.substr(part.find('=') + 1);
+        part = part.substr(part.find('=') + 1); // Extract part name
         concat.parts.push_back(part);
         std::cout << "Added part " << concat.parts[i] << " to concatenation " << concat_name << "\n";
     }
@@ -130,8 +138,8 @@ void parse_concatenation(const std::string &line, std::ifstream &flow_file) {
     std::cout << "Parsed concatenation: " << concat_name << " with " << part_count << " parts\n";
 }
 
-// Function to execute a command
-void execute_command(const Node &node) {
+// Function to execute a command and capture its output
+void execute_command(const Node &node, int input_fd = STDIN_FILENO) {
     std::cout << "Executing command: " << node.name << "\n";
     for (const auto &cmd : node.command) {
         std::cout << cmd << " ";
@@ -142,7 +150,12 @@ void execute_command(const Node &node) {
     for (auto &arg : node.command) {
         args.push_back(const_cast<char*>(arg.c_str()));
     }
-    args.push_back(NULL);
+    args.push_back(NULL); // Null-terminate the argument list
+
+    if (input_fd != STDIN_FILENO) {
+        dup2(input_fd, STDIN_FILENO);  // Redirect stdin to the input_fd
+        close(input_fd);  // Close the file descriptor
+    }
 
     if (execvp(args[0], args.data()) == -1) {
         std::cerr << "Error: Failed to execute command: " << args[0] << "\n";
@@ -152,8 +165,6 @@ void execute_command(const Node &node) {
 
 // Function to set up and execute a pipe between two nodes
 void execute_pipe(const FlowPipe &pipe) {
-    std::cout << "Executing pipe from " << pipe.from << " to " << pipe.to << "\n";
-
     int pipe_fds[2];
     if (::pipe(pipe_fds) == -1) {
         std::cerr << "Error: Failed to create pipe\n";
@@ -161,42 +172,43 @@ void execute_pipe(const FlowPipe &pipe) {
     }
 
     pid_t pid1 = fork();
-    if (pid1 == 0) { 
-        close(pipe_fds[0]); 
-        dup2(pipe_fds[1], STDOUT_FILENO); 
-        close(pipe_fds[1]); 
+    if (pid1 == 0) { // First process
+        close(pipe_fds[0]); // Close read end
+        dup2(pipe_fds[1], STDOUT_FILENO); // Redirect stdout to write end
+        close(pipe_fds[1]); // Close write end
 
-        std::cout << "Executing node: " << pipe.from << "\n";
         execute_command(nodes[pipe.from]);
     }
 
     pid_t pid2 = fork();
-    if (pid2 == 0) { 
-        close(pipe_fds[1]); 
-        dup2(pipe_fds[0], STDIN_FILENO); 
-        close(pipe_fds[0]); 
+    if (pid2 == 0) { // Second process
+        close(pipe_fds[1]); // Close write end
+        dup2(pipe_fds[0], STDIN_FILENO); // Redirect stdin to read end
+        close(pipe_fds[0]); // Close read end
 
-        std::cout << "Executing node: " << pipe.to << "\n";
         execute_command(nodes[pipe.to]);
     }
 
+    // Close pipes in parent process
     close(pipe_fds[0]);
     close(pipe_fds[1]);
 
+    // Wait for both child processes to finish
     waitpid(pid1, NULL, 0);
     waitpid(pid2, NULL, 0);
 }
 
 // Function to execute a concatenation of nodes or pipes
 void execute_concatenation(const Concatenation &concat) {
-    std::cout << "Executing concatenation: " << concat.name << "\n";
     for (const auto &part : concat.parts) {
         if (pipes.find(part) != pipes.end()) {
-            execute_pipe(pipes[part]); 
+            std::cout << "Executing pipe in concatenation: " << part << "\n";
+            execute_pipe(pipes[part]); // Handle pipes in concatenation
         } else if (nodes.find(part) != nodes.end()) {
+            std::cout << "Executing node in concatenation: " << part << "\n";
             pid_t pid = fork();
             if (pid == 0) {
-                execute_command(nodes[part]); 
+                execute_command(nodes[part]); // Execute individual nodes in concatenation
             }
             waitpid(pid, NULL, 0);
         }
@@ -213,6 +225,7 @@ void parse_and_execute_flow_file(const std::string &flow_file_path, const std::s
 
     std::string line;
 
+    // Parse the flow file line by line
     while (std::getline(flow_file, line)) {
         std::cout << "Read line: " << line << "\n";
         if (line.find("node=") == 0) {
@@ -224,6 +237,7 @@ void parse_and_execute_flow_file(const std::string &flow_file_path, const std::s
         }
     }
 
+    // Execute based on the target (pipe or concatenation)
     if (pipes.find(target) != pipes.end()) {
         std::cout << "Executing pipe: " << target << "\n";
         execute_pipe(pipes[target]);
