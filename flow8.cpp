@@ -17,15 +17,39 @@ std::unordered_map<std::string, std::string> nodes;               // Maps node n
 std::unordered_map<std::string, Concatenation> concatenations;    // Maps concatenation names to their parts
 
 /**
- * Split a string into tokens based on whitespace.
+ * Split a string into tokens based on whitespace, respecting quotes.
  */
 std::vector<std::string> split(const std::string& s) {
     std::vector<std::string> tokens;
-    std::istringstream iss(s);
     std::string token;
-    while (iss >> token) {
+    bool in_single_quote = false;
+    bool in_double_quote = false;
+
+    for (size_t i = 0; i < s.length(); ++i) {
+        char c = s[i];
+
+        if (c == '\'' && !in_double_quote) {
+            in_single_quote = !in_single_quote;
+            continue;  // Skip the quote character
+        } else if (c == '"' && !in_single_quote) {
+            in_double_quote = !in_double_quote;
+            continue;  // Skip the quote character
+        }
+
+        if (std::isspace(c) && !in_single_quote && !in_double_quote) {
+            if (!token.empty()) {
+                tokens.push_back(token);
+                token.clear();
+            }
+        } else {
+            token += c;
+        }
+    }
+
+    if (!token.empty()) {
         tokens.push_back(token);
     }
+
     return tokens;
 }
 
