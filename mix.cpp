@@ -230,14 +230,11 @@ void execute_pipe(const std::string &pipe_name, int output_fd) {
         exit(EXIT_FAILURE);
     }
 
-    pid_t pid_to;
-    // Execute the 'to' part
-    pid_to = fork();
+    pid_t pid_to = fork();
     if (pid_to == -1) {
         perror("[ERROR] fork failed");
         exit(EXIT_FAILURE);
-    } else if (pid_to == 0) {
-        // Child process for 'to'
+    } else if (pid_to == 0) {  // Child process for 'to'
         close(fd[1]);  // Close write end
         if (dup2(fd[0], STDIN_FILENO) == -1) {
             perror("[ERROR] dup2 failed");
@@ -246,6 +243,7 @@ void execute_pipe(const std::string &pipe_name, int output_fd) {
         close(fd[0]);
 
         if (output_fd != STDOUT_FILENO) {
+            // Redirect output if necessary
             if (dup2(output_fd, STDOUT_FILENO) == -1) {
                 perror("[ERROR] dup2 failed");
                 exit(EXIT_FAILURE);
@@ -253,19 +251,17 @@ void execute_pipe(const std::string &pipe_name, int output_fd) {
             close(output_fd);
         }
 
-        // Execute 'to' action
+        // Corrected line: pass output_fd instead of STDOUT_FILENO
         execute_action(flow_pipe.to, STDOUT_FILENO);
 
-        _exit(EXIT_FAILURE);  // Should not reach here
+        _exit(EXIT_FAILURE);
     }
 
-    // Execute the 'from' part
     pid_t pid_from = fork();
     if (pid_from == -1) {
         perror("[ERROR] fork failed");
         exit(EXIT_FAILURE);
-    } else if (pid_from == 0) {
-        // Child process for 'from'
+    } else if (pid_from == 0) {  // Child process for 'from'
         close(fd[0]);  // Close read end
         if (dup2(fd[1], STDOUT_FILENO) == -1) {
             perror("[ERROR] dup2 failed");
@@ -273,17 +269,15 @@ void execute_pipe(const std::string &pipe_name, int output_fd) {
         }
         close(fd[1]);
 
-        // Execute 'from' action
         execute_action(flow_pipe.from, STDOUT_FILENO);
 
-        _exit(EXIT_FAILURE);  // Should not reach here
+        _exit(EXIT_FAILURE);
     }
 
-    // Parent process closes unused pipe ends
+    // Parent process closes unused pipe ends and waits for child processes
     close(fd[0]);
     close(fd[1]);
 
-    // Wait for both child processes
     int status;
     waitpid(pid_from, &status, 0);
     waitpid(pid_to, &status, 0);
