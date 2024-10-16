@@ -110,8 +110,20 @@ std::string execute_pipe(const FlowPipe &flow_pipe) {
         dup2(pipefd[1], STDOUT_FILENO);  // Redirect stdout to pipe write end
         close(pipefd[1]);  // Close the write end after redirection
 
-        // Execute the first command (producer)
-        execute_node(nodes[flow_pipe.from]);
+        // Check if the producer (flow_pipe.from) is a pipe or node
+        if (pipes.find(flow_pipe.from) != pipes.end()) {
+            // It's a pipe, execute the pipe recursively
+            std::string producer_output = execute_pipe(pipes[flow_pipe.from]);
+            // Write producer output to the current pipe (so that consumer gets this output)
+            write(STDOUT_FILENO, producer_output.c_str(), producer_output.size());
+        } else if (nodes.find(flow_pipe.from) != nodes.end()) {
+            // It's a node, execute the node
+            execute_node(nodes[flow_pipe.from]);
+        } else {
+            std::cerr << "[ERROR] Unknown producer (from): " << flow_pipe.from << std::endl;
+            _exit(EXIT_FAILURE);
+        }
+        
         std::cerr << "[ERROR] execvp failed for producer\n";
         _exit(EXIT_FAILURE);  // Exit if execvp fails
     }
@@ -161,8 +173,18 @@ std::string execute_pipe(const FlowPipe &flow_pipe) {
         dup2(temp_pipefd[0], STDIN_FILENO);  // Redirect the temp pipe to the consumer's stdin
         close(temp_pipefd[0]);  // Close read end after redirection
 
-        // Execute the consumer command
-        execute_node(nodes[flow_pipe.to]);
+        // Check if the consumer (flow_pipe.to) is a pipe or node
+        if (pipes.find(flow_pipe.to) != pipes.end()) {
+            // It's a pipe, execute the pipe recursively
+            execute_pipe(pipes[flow_pipe.to]);
+        } else if (nodes.find(flow_pipe.to) != nodes.end()) {
+            // It's a node, execute the node
+            execute_node(nodes[flow_pipe.to]);
+        } else {
+            std::cerr << "[ERROR] Unknown consumer (to): " << flow_pipe.to << std::endl;
+            _exit(EXIT_FAILURE);
+        }
+
         std::cerr << "[ERROR] execvp failed for consumer\n";
         _exit(EXIT_FAILURE);  // Exit if execvp fails
     }
