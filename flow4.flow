@@ -1,0 +1,10 @@
+node=list_files_1
+command=ls
+
+node=list_files_2
+command=ls -l
+
+concatenate=lss
+parts=2
+part_0=list_files_1
+part_1=list_files_2
