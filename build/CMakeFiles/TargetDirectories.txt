@@ -1,0 +1,5 @@
+/Users/reetnandy/vscode/OS_HW_2/build/CMakeFiles/mix.dir
+/Users/reetnandy/vscode/OS_HW_2/build/CMakeFiles/clean_mix.dir
+/Users/reetnandy/vscode/OS_HW_2/build/CMakeFiles/test.dir
+/Users/reetnandy/vscode/OS_HW_2/build/CMakeFiles/edit_cache.dir
+/Users/reetnandy/vscode/OS_HW_2/build/CMakeFiles/rebuild_cache.dir

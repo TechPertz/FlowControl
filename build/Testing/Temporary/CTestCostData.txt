@@ -1,0 +1,10 @@
+Test_files/flow1_flow 2 0.01314
+Test_files/flow2_flow 2 0.0163293
+Test_files/flow3_flow 2 0.0147791
+Test_files/flow4_flow 2 0.0129398
+Test_files/flow5_flow 2 0.0129517
+Test_files/flow8_flow 2 0.0122651
+Test_files/flow9_flow 2 0.00781264
+Test_files/flow10_flow 2 0.00760463
+Test_files/flow11_flow 2 0.0159495
+---

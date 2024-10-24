@@ -1,0 +1,363 @@
+Start testing: Oct 16 20:49 EDT
+----------------------------------------------------------
+1/9 Testing: Test_files/flow1_flow
+1/9 Test: Test_files/flow1_flow
+Command: "/bin/bash" "-c" "
+            echo '=== Running Test_files/flow1_flow ===';
+            echo 'Running mix with files/flow1.flow:';
+            /Users/reetnandy/vscode/OS_HW_2/mix files/flow1.flow doit > Test_files/flow1_flow_actual_output.txt;
+            echo 'Expected output from command:';
+            ls | wc > Test_files/flow1_flow_expected_output.txt;
+            echo '--- Actual Output ---';
+            cat Test_files/flow1_flow_actual_output.txt;
+            echo '--- Expected Output ---';
+            cat Test_files/flow1_flow_expected_output.txt;
+        "
+Directory: /Users/reetnandy/vscode/OS_HW_2/build
+"Test_files/flow1_flow" start time: Oct 16 20:49 EDT
+Output:
+----------------------------------------------------------
+=== Running Test_files/flow1_flow ===
+Running mix with files/flow1.flow:
+/bin/bash: line 3: Test_files/flow1_flow_actual_output.txt: No such file or directory
+Expected output from command:
+/bin/bash: line 5: Test_files/flow1_flow_expected_output.txt: No such file or directory
+--- Actual Output ---
+cat: Test_files/flow1_flow_actual_output.txt: No such file or directory
+--- Expected Output ---
+cat: Test_files/flow1_flow_expected_output.txt: No such file or directory
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found. Regex=[.*]
+"Test_files/flow1_flow" end time: Oct 16 20:49 EDT
+"Test_files/flow1_flow" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/9 Testing: Test_files/flow2_flow
+2/9 Test: Test_files/flow2_flow
+Command: "/bin/bash" "-c" "
+            echo '=== Running Test_files/flow2_flow ===';
+            echo 'Running mix with files/flow2.flow:';
+            /Users/reetnandy/vscode/OS_HW_2/mix files/flow2.flow shenanigan > Test_files/flow2_flow_actual_output.txt;
+            echo 'Expected output from command:';
+            (cat /Users/reetnandy/vscode/OS_HW_2/files/foo.txt ; cat /Users/reetnandy/vscode/OS_HW_2/files/foo.txt | sed 's/o/u/g') | wc > Test_files/flow2_flow_expected_output.txt;
+            echo '--- Actual Output ---';
+            cat Test_files/flow2_flow_actual_output.txt;
+            echo '--- Expected Output ---';
+            cat Test_files/flow2_flow_expected_output.txt;
+        "
+Directory: /Users/reetnandy/vscode/OS_HW_2/build
+"Test_files/flow2_flow" start time: Oct 16 20:49 EDT
+Output:
+----------------------------------------------------------
+=== Running Test_files/flow2_flow ===
+Running mix with files/flow2.flow:
+/bin/bash: line 3: Test_files/flow2_flow_actual_output.txt: No such file or directory
+Expected output from command:
+/bin/bash: line 5: Test_files/flow2_flow_expected_output.txt: No such file or directory
+--- Actual Output ---
+cat: Test_files/flow2_flow_actual_output.txt: No such file or directory
+--- Expected Output ---
+cat: Test_files/flow2_flow_expected_output.txt: No such file or directory
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found. Regex=[.*]
+"Test_files/flow2_flow" end time: Oct 16 20:49 EDT
+"Test_files/flow2_flow" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/9 Testing: Test_files/flow3_flow
+3/9 Test: Test_files/flow3_flow
+Command: "/bin/bash" "-c" "
+            echo '=== Running Test_files/flow3_flow ===';
+            echo 'Running mix with files/flow3.flow:';
+            /Users/reetnandy/vscode/OS_HW_2/mix files/flow3.flow doit > Test_files/flow3_flow_actual_output.txt;
+            echo 'Expected output from command:';
+            ls -l | ls > Test_files/flow3_flow_expected_output.txt;
+            echo '--- Actual Output ---';
+            cat Test_files/flow3_flow_actual_output.txt;
+            echo '--- Expected Output ---';
+            cat Test_files/flow3_flow_expected_output.txt;
+        "
+Directory: /Users/reetnandy/vscode/OS_HW_2/build
+"Test_files/flow3_flow" start time: Oct 16 20:49 EDT
+Output:
+----------------------------------------------------------
+=== Running Test_files/flow3_flow ===
+Running mix with files/flow3.flow:
+/bin/bash: line 3: Test_files/flow3_flow_actual_output.txt: No such file or directory
+Expected output from command:
+/bin/bash: line 5: Test_files/flow3_flow_expected_output.txt: No such file or directory
+--- Actual Output ---
+cat: Test_files/flow3_flow_actual_output.txt: No such file or directory
+--- Expected Output ---
+cat: Test_files/flow3_flow_expected_output.txt: No such file or directory
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found. Regex=[.*]
+"Test_files/flow3_flow" end time: Oct 16 20:49 EDT
+"Test_files/flow3_flow" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/9 Testing: Test_files/flow4_flow
+4/9 Test: Test_files/flow4_flow
+Command: "/bin/bash" "-c" "
+            echo '=== Running Test_files/flow4_flow ===';
+            echo 'Running mix with files/flow4.flow:';
+            /Users/reetnandy/vscode/OS_HW_2/mix files/flow4.flow doit > Test_files/flow4_flow_actual_output.txt;
+            echo 'Expected output from command:';
+            ls ; ls -l > Test_files/flow4_flow_expected_output.txt;
+            echo '--- Actual Output ---';
+            cat Test_files/flow4_flow_actual_output.txt;
+            echo '--- Expected Output ---';
+            cat Test_files/flow4_flow_expected_output.txt;
+        "
+Directory: /Users/reetnandy/vscode/OS_HW_2/build
+"Test_files/flow4_flow" start time: Oct 16 20:49 EDT
+Output:
+----------------------------------------------------------
+=== Running Test_files/flow4_flow ===
+Running mix with files/flow4.flow:
+/bin/bash: line 3: Test_files/flow4_flow_actual_output.txt: No such file or directory
+Expected output from command:
+CMakeCache.txt
+CMakeFiles
+CTestTestfile.cmake
+Makefile
+Testing
+cmake_install.cmake
+flow
+flow2
+flow3
+flow4
+flow5
+flow6
+flow7
+flow7_1
+flow8
+mix
+parse
+/bin/bash: line 5: Test_files/flow4_flow_expected_output.txt: No such file or directory
+--- Actual Output ---
+cat: Test_files/flow4_flow_actual_output.txt: No such file or directory
+--- Expected Output ---
+cat: Test_files/flow4_flow_expected_output.txt: No such file or directory
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found. Regex=[.*]
+"Test_files/flow4_flow" end time: Oct 16 20:49 EDT
+"Test_files/flow4_flow" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/9 Testing: Test_files/flow5_flow
+5/9 Test: Test_files/flow5_flow
+Command: "/bin/bash" "-c" "
+            echo '=== Running Test_files/flow5_flow ===';
+            echo 'Running mix with files/flow5.flow:';
+            /Users/reetnandy/vscode/OS_HW_2/mix files/flow5.flow pipe3 > Test_files/flow5_flow_actual_output.txt;
+            echo 'Expected output from command:';
+            ls | grep '.cpp' | wc > Test_files/flow5_flow_expected_output.txt;
+            echo '--- Actual Output ---';
+            cat Test_files/flow5_flow_actual_output.txt;
+            echo '--- Expected Output ---';
+            cat Test_files/flow5_flow_expected_output.txt;
+        "
+Directory: /Users/reetnandy/vscode/OS_HW_2/build
+"Test_files/flow5_flow" start time: Oct 16 20:49 EDT
+Output:
+----------------------------------------------------------
+=== Running Test_files/flow5_flow ===
+Running mix with files/flow5.flow:
+/bin/bash: line 3: Test_files/flow5_flow_actual_output.txt: No such file or directory
+Expected output from command:
+/bin/bash: line 5: Test_files/flow5_flow_expected_output.txt: No such file or directory
+--- Actual Output ---
+cat: Test_files/flow5_flow_actual_output.txt: No such file or directory
+--- Expected Output ---
+cat: Test_files/flow5_flow_expected_output.txt: No such file or directory
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found. Regex=[.*]
+"Test_files/flow5_flow" end time: Oct 16 20:49 EDT
+"Test_files/flow5_flow" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/9 Testing: Test_files/flow8_flow
+6/9 Test: Test_files/flow8_flow
+Command: "/bin/bash" "-c" "
+            echo '=== Running Test_files/flow8_flow ===';
+            echo 'Running mix with files/flow8.flow:';
+            /Users/reetnandy/vscode/OS_HW_2/mix files/flow8.flow concat1 > Test_files/flow8_flow_actual_output.txt;
+            echo 'Expected output from command:';
+            ls ; ls > Test_files/flow8_flow_expected_output.txt;
+            echo '--- Actual Output ---';
+            cat Test_files/flow8_flow_actual_output.txt;
+            echo '--- Expected Output ---';
+            cat Test_files/flow8_flow_expected_output.txt;
+        "
+Directory: /Users/reetnandy/vscode/OS_HW_2/build
+"Test_files/flow8_flow" start time: Oct 16 20:49 EDT
+Output:
+----------------------------------------------------------
+=== Running Test_files/flow8_flow ===
+Running mix with files/flow8.flow:
+/bin/bash: line 3: Test_files/flow8_flow_actual_output.txt: No such file or directory
+Expected output from command:
+CMakeCache.txt
+CMakeFiles
+CTestTestfile.cmake
+Makefile
+Testing
+cmake_install.cmake
+flow
+flow2
+flow3
+flow4
+flow5
+flow6
+flow7
+flow7_1
+flow8
+mix
+parse
+/bin/bash: line 5: Test_files/flow8_flow_expected_output.txt: No such file or directory
+--- Actual Output ---
+cat: Test_files/flow8_flow_actual_output.txt: No such file or directory
+--- Expected Output ---
+cat: Test_files/flow8_flow_expected_output.txt: No such file or directory
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found. Regex=[.*]
+"Test_files/flow8_flow" end time: Oct 16 20:49 EDT
+"Test_files/flow8_flow" time elapsed: 00:00:00
+----------------------------------------------------------
+
+7/9 Testing: Test_files/flow9_flow
+7/9 Test: Test_files/flow9_flow
+Command: "/bin/bash" "-c" "
+            echo '=== Running Test_files/flow9_flow ===';
+            echo 'Running mix with files/flow9.flow:';
+            /Users/reetnandy/vscode/OS_HW_2/mix files/flow9.flow concat_echoes > Test_files/flow9_flow_actual_output.txt;
+            echo 'Expected output from command:';
+            echo 'f o o' ; echo 'f o o' ; echo 'f o o' ; echo 'f o o' ; echo 'f o o' > Test_files/flow9_flow_expected_output.txt;
+            echo '--- Actual Output ---';
+            cat Test_files/flow9_flow_actual_output.txt;
+            echo '--- Expected Output ---';
+            cat Test_files/flow9_flow_expected_output.txt;
+        "
+Directory: /Users/reetnandy/vscode/OS_HW_2/build
+"Test_files/flow9_flow" start time: Oct 16 20:49 EDT
+Output:
+----------------------------------------------------------
+=== Running Test_files/flow9_flow ===
+Running mix with files/flow9.flow:
+/bin/bash: line 3: Test_files/flow9_flow_actual_output.txt: No such file or directory
+Expected output from command:
+f o o
+f o o
+f o o
+f o o
+/bin/bash: line 5: Test_files/flow9_flow_expected_output.txt: No such file or directory
+--- Actual Output ---
+cat: Test_files/flow9_flow_actual_output.txt: No such file or directory
+--- Expected Output ---
+cat: Test_files/flow9_flow_expected_output.txt: No such file or directory
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found. Regex=[.*]
+"Test_files/flow9_flow" end time: Oct 16 20:49 EDT
+"Test_files/flow9_flow" time elapsed: 00:00:00
+----------------------------------------------------------
+
+8/9 Testing: Test_files/flow10_flow
+8/9 Test: Test_files/flow10_flow
+Command: "/bin/bash" "-c" "
+            echo '=== Running Test_files/flow10_flow ===';
+            echo 'Running mix with files/flow10.flow:';
+            /Users/reetnandy/vscode/OS_HW_2/mix files/flow10.flow concat_ultimate > Test_files/flow10_flow_actual_output.txt;
+            echo 'Expected output from command:';
+            echo 'Command One Executed.' ; echo 'Command One Executed.' ; echo 'Command Two Executed.' ; echo 'Command Three Executed.' ; echo 'Command Four Executed.' ; echo 'Command Four Executed.' ; echo 'Command One Executed.' ; echo 'Command Two Executed.' > Test_files/flow10_flow_expected_output.txt;
+            echo '--- Actual Output ---';
+            cat Test_files/flow10_flow_actual_output.txt;
+            echo '--- Expected Output ---';
+            cat Test_files/flow10_flow_expected_output.txt;
+        "
+Directory: /Users/reetnandy/vscode/OS_HW_2/build
+"Test_files/flow10_flow" start time: Oct 16 20:49 EDT
+Output:
+----------------------------------------------------------
+=== Running Test_files/flow10_flow ===
+Running mix with files/flow10.flow:
+/bin/bash: line 3: Test_files/flow10_flow_actual_output.txt: No such file or directory
+Expected output from command:
+Command One Executed.
+Command One Executed.
+Command Two Executed.
+Command Three Executed.
+Command Four Executed.
+Command Four Executed.
+Command One Executed.
+/bin/bash: line 5: Test_files/flow10_flow_expected_output.txt: No such file or directory
+--- Actual Output ---
+cat: Test_files/flow10_flow_actual_output.txt: No such file or directory
+--- Expected Output ---
+cat: Test_files/flow10_flow_expected_output.txt: No such file or directory
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found. Regex=[.*]
+"Test_files/flow10_flow" end time: Oct 16 20:49 EDT
+"Test_files/flow10_flow" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/9 Testing: Test_files/flow11_flow
+9/9 Test: Test_files/flow11_flow
+Command: "/bin/bash" "-c" "
+            echo '=== Running Test_files/flow11_flow ===';
+            echo 'Running mix with files/flow11.flow:';
+            /Users/reetnandy/vscode/OS_HW_2/mix files/flow11.flow unique_numbers > Test_files/flow11_flow_actual_output.txt;
+            echo 'Expected output from command:';
+            (seq 1 5 | awk '{print $1*$1}' ; seq 1 5 | awk '{print $1*2}' ; seq 1 5 | awk '{print $1+5}') | sort -n | uniq > Test_files/flow11_flow_expected_output.txt;
+            echo '--- Actual Output ---';
+            cat Test_files/flow11_flow_actual_output.txt;
+            echo '--- Expected Output ---';
+            cat Test_files/flow11_flow_expected_output.txt;
+        "
+Directory: /Users/reetnandy/vscode/OS_HW_2/build
+"Test_files/flow11_flow" start time: Oct 16 20:49 EDT
+Output:
+----------------------------------------------------------
+=== Running Test_files/flow11_flow ===
+Running mix with files/flow11.flow:
+/bin/bash: line 3: Test_files/flow11_flow_actual_output.txt: No such file or directory
+Expected output from command:
+/bin/bash: line 5: Test_files/flow11_flow_expected_output.txt: No such file or directory
+--- Actual Output ---
+cat: Test_files/flow11_flow_actual_output.txt: No such file or directory
+--- Expected Output ---
+cat: Test_files/flow11_flow_expected_output.txt: No such file or directory
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Pass Reason:
+Required regular expression found. Regex=[.*]
+"Test_files/flow11_flow" end time: Oct 16 20:49 EDT
+"Test_files/flow11_flow" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 16 20:49 EDT

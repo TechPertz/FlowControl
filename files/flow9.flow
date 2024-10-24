@@ -1,17 +1,17 @@
 node=echo1
-command=echo "f o o"
+command=echo 'f  o o'
 
 node=echo2
 command=echo "f o o"
 
 node=echo3
-command=echo "f o o"
+command=echo "f o    o"
 
 node=echo4
-command=echo "f o o"
+command=echo "foo"
 
 node=echo5
-command=echo "f o o"
+command=echo 'f o o'
 
 concatenate=concat_echoes
 parts=5
