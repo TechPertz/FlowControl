@@ -4,6 +4,7 @@
 
 1. Download and extract this repository.
 2. Run `python3 run.py`
+3. Open TestResult_{current_time}.txt for more information.
 
 ### Test Cases
 
