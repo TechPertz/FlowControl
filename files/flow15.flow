@@ -1,9 +1,0 @@
-node=list_files
-command=ls -l
-
-file=output_file
-name=output.txt
-
-pipe=process_pipe
-from=list_files
-to=output_file
