@@ -1,0 +1,10 @@
+node=list_files
+command=ls
+
+node=path
+command=pwd
+
+concatenate=doit
+parts=2
+part_0=list_files
+part_1=path

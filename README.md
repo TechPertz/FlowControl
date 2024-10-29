@@ -15,23 +15,23 @@ Test Cases
 1: ls | wc      // normal pipe
 2: ls -l | wc       // if - arguments can be handled properly
 3: ls -l | ls       // if pipe can be used for a "to" argument that doesnt take inputs
-4: echo foo | wc       // no quotes for argument
-4: echo 'foo2' | cat        // single quotes 
-5: echo "foo1" | wc        // double quotes
-6: echo 'f o o' | wc       // quotes with space
+4: echo foo | cat       // no quotes for argument
+5: echo 'foo' | cat        // single quotes 
+6: echo "foo" | cat        // double quotes
+7: echo 'f o o' | cat       // quotes with space
 
-7: ls ; pwd       // normal concat
-8: ls; ls ; ls -a     // concat with more than 2 parts and also arguments
-9: echo foo1 ; echo 'foo2' ; echo "foo3" ; echo 'f o o 4'       // no quotes ; double ; single ; spaces
+8: ls ; pwd       // normal concat
+9: ls; ls ; ls -a     // concat with more than 2 parts and also arguments
+10: echo foo1 ; echo 'foo2' ; echo "foo3" ; echo 'f o o 4'       // no quotes ; double ; single ; spaces
 
-10: ls | wc ; pwd       // mix
-11: ( cat foo.txt ; cat foo.txt | sed s/o/u/g ) | wc     // complicated mix
+11: ls | wc ; pwd       // mix
+12: ( cat foo.txt ; cat foo.txt | sed s/o/u/g ) | wc     // complicated mix
 
-12: ( seq 1 5 | awk '{print $1*$1}'; seq 1 5 | awk '{print $1*2}'; seq 1 5 | awk '{print $1+5}' ) | sort -n | uniq       
+13: ( seq 1 5 | awk '{print $1*$1}'; seq 1 5 | awk '{print $1*2}'; seq 1 5 | awk '{print $1+5}' ) | sort -n | uniq       
 // extra credit - chatgpt - complicated with quotes, arguments, everything
 
-13: cd b 2>&1       // b would not exist in the directory
-14: mkdir a 2>&1 | wc
+14: cd b 2>&1       // b would not exist in the directory
+15: cd b 2>&1 | wc
 
-15: ls > output.txt
-16: cat output.txt | wc
+16: ls > output.txt
+17: cat output.txt | wc

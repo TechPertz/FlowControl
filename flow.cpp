@@ -42,18 +42,57 @@ std::unordered_map<std::string, Concatenation> concatenations;
 std::unordered_map<std::string, StderrCapture> stderrCaptures;
 std::unordered_map<std::string, FileNode> fileNodes;
 
-// Function Declarations
-std::vector<std::string> tokenize_command(const std::string &command_line);
-std::vector<char*> prepare_args(const Node &node);
-void execute_node(const Node &node);
-void execute_single_node(const std::string &node_name, int output_fd = STDOUT_FILENO, bool suppress_error_messages = false);
-void execute_concatenation(const std::string &concat_name, int output_fd = STDOUT_FILENO, bool suppress_error_messages = false);
-void execute_action(const std::string &action_name, int output_fd = STDOUT_FILENO, bool suppress_error_messages = false);
-void execute_pipe(const std::string &pipe_name, int output_fd = STDOUT_FILENO, bool suppress_error_messages = false);
-void execute_stderr_capture(const std::string &stderr_name, int output_fd = STDOUT_FILENO, bool suppress_error_messages = false);
-void execute_file_node(const std::string &file_node_name, int output_fd = STDOUT_FILENO, bool suppress_error_messages = false);
-void parse_flow_file(const std::string& filename);
-int main(int argc, char* argv[]);
+// Helper function to execute commands or actions
+void execute_command(const std::vector<std::string> &command_args, int input_fd, int output_fd, bool redirect_stderr, bool suppress_error_messages) {
+    pid_t pid = fork();
+    if (pid == -1) {
+        perror("[ERROR] fork failed");
+        exit(EXIT_FAILURE);
+    }
+    if (pid == 0) {  // Child process
+        if (input_fd != STDIN_FILENO) {
+            if (dup2(input_fd, STDIN_FILENO) == -1) {
+                perror("[ERROR] dup2 input_fd failed");
+                exit(EXIT_FAILURE);
+            }
+            close(input_fd);
+        }
+        if (output_fd != STDOUT_FILENO) {
+            if (dup2(output_fd, STDOUT_FILENO) == -1) {
+                perror("[ERROR] dup2 output_fd failed");
+                exit(EXIT_FAILURE);
+            }
+            close(output_fd);
+        }
+        if (redirect_stderr) {
+            if (dup2(STDOUT_FILENO, STDERR_FILENO) == -1) {
+                perror("[ERROR] dup2 STDERR failed");
+                exit(EXIT_FAILURE);
+            }
+        }
+        std::vector<char*> args;
+        for (const auto &arg : command_args) {
+            args.push_back(const_cast<char*>(arg.c_str()));
+        }
+        args.push_back(nullptr);
+        execvp(args[0], args.data());
+        perror("[ERROR] execvp failed");
+        exit(EXIT_FAILURE);
+    }
+    // Parent process waits for the child
+    int status;
+    waitpid(pid, &status, 0);
+    if (WIFEXITED(status)) {
+        if (WEXITSTATUS(status) != 0 && !suppress_error_messages) {
+            std::cerr << "[ERROR] Child process exited with error code: " << WEXITSTATUS(status) << std::endl;
+        }
+    } else if (WIFSIGNALED(status)) {
+        int sig = WTERMSIG(status);
+        if (sig != SIGPIPE && !suppress_error_messages) {
+            std::cerr << "[ERROR] Child process was terminated by signal: " << sig << std::endl;
+        }
+    }
+}
 
 // Function Definitions
 
@@ -66,9 +105,7 @@ std::vector<std::string> tokenize_command(const std::string &command_line) {
     bool in_single_quote = false;
     bool in_double_quote = false;
 
-    for (size_t i = 0; i < command_line.length(); ++i) {
-        char c = command_line[i];
-
+    for (char c : command_line) {
         if (c == '\'' && !in_double_quote) {
             in_single_quote = !in_single_quote;
             continue;  // Skip the quote character
@@ -95,365 +132,117 @@ std::vector<std::string> tokenize_command(const std::string &command_line) {
 }
 
 /**
- * Function to prepare args for execvp.
- */
-std::vector<char*> prepare_args(const Node &node) {
-    std::vector<char*> args;
-    for (const auto &arg : node.command) {
-        args.push_back(const_cast<char*>(arg.c_str()));
-    }
-    args.push_back(nullptr);  // Null-terminated list of arguments
-    return args;
-}
-
-/**
- * Function to execute a node command using execvp.
- */
-void execute_node(const Node &node) {
-    std::vector<char*> args = prepare_args(node);
-    execvp(args[0], args.data());  // Execute the command
-    perror("[ERROR] execvp failed");  // Only reached if execvp fails
-    _exit(EXIT_FAILURE);  // Exit if execvp fails
-}
-
-/**
- * Function to execute a single node, with optional output redirection and error suppression.
- */
-void execute_single_node(const std::string &node_name, int output_fd, bool suppress_error_messages) {
-    auto it = nodes.find(node_name);
-    if (it == nodes.end()) {
-        std::cerr << "[ERROR] Node not found: " << node_name << std::endl;
-        exit(EXIT_FAILURE);
-    }
-
-    const Node &node = it->second;
-
-    pid_t pid = fork();
-    if (pid == -1) {
-        perror("[ERROR] fork failed");
-        exit(EXIT_FAILURE);
-    }
-
-    if (pid == 0) {  // Child process
-        if (output_fd != STDOUT_FILENO) {
-            if (dup2(output_fd, STDOUT_FILENO) == -1) {
-                perror("[ERROR] dup2 failed");
-                exit(EXIT_FAILURE);
-            }
-            close(output_fd);  // Close after duplication
-        }
-        execute_node(node);  // Execute the node
-        _exit(EXIT_FAILURE);  // Should not reach here
-    }
-
-    // Parent process waits for the child
-    int status;
-    waitpid(pid, &status, 0);
-    if (WIFEXITED(status)) {
-        if (WEXITSTATUS(status) != 0 && !suppress_error_messages) {
-            std::cerr << "[ERROR] Child process exited with error code: " << WEXITSTATUS(status) << std::endl;
-        }
-    } else if (WIFSIGNALED(status)) {
-        int sig = WTERMSIG(status);
-        if (sig != SIGPIPE && !suppress_error_messages) {
-            std::cerr << "[ERROR] Child process was terminated by signal: " << sig << std::endl;
-        }
-    }
-}
-
-/**
- * Function to execute a concatenation.
- */
-void execute_concatenation(const std::string &concat_name, int output_fd, bool suppress_error_messages) {
-    auto it = concatenations.find(concat_name);
-    if (it == concatenations.end()) {
-        std::cerr << "[ERROR] Concatenation not found: " << concat_name << std::endl;
-        exit(EXIT_FAILURE);
-    }
-
-    const Concatenation &concat = it->second;
-
-    for (const auto &part_name : concat.parts) {
-        // Execute each part
-        execute_action(part_name, output_fd, suppress_error_messages);
-    }
-}
-
-/**
  * Helper function to execute any action (node, pipe, concatenation, stderr capture, or file node).
  */
-void execute_action(const std::string &action_name, int output_fd, bool suppress_error_messages) {
+void execute_action(const std::string &action_name, int input_fd = STDIN_FILENO, int output_fd = STDOUT_FILENO, bool suppress_error_messages = false) {
     if (nodes.find(action_name) != nodes.end()) {
-        execute_single_node(action_name, output_fd, suppress_error_messages);
+        const Node &node = nodes[action_name];
+        execute_command(node.command, input_fd, output_fd, false, suppress_error_messages);
     } else if (pipes.find(action_name) != pipes.end()) {
-        execute_pipe(action_name, output_fd, suppress_error_messages);
+        const FlowPipe &flow_pipe = pipes[action_name];
+
+        // Handle if 'from' or 'to' is a file node
+        bool from_is_file = fileNodes.find(flow_pipe.from) != fileNodes.end();
+        bool to_is_file = fileNodes.find(flow_pipe.to) != fileNodes.end();
+
+        if (from_is_file && to_is_file) {
+            std::cerr << "[ERROR] Both 'from' and 'to' cannot be file nodes in pipe: " << action_name << std::endl;
+            exit(EXIT_FAILURE);
+        }
+
+        if (from_is_file) {
+            // 'from' is a file node; open the file and set as input_fd
+            const FileNode &fileNode = fileNodes[flow_pipe.from];
+            int file_fd = open(fileNode.filename.c_str(), O_RDONLY);
+            if (file_fd == -1) {
+                perror("[ERROR] open failed");
+                exit(EXIT_FAILURE);
+            }
+            execute_action(flow_pipe.to, file_fd, output_fd, suppress_error_messages);
+            close(file_fd);
+        } else if (to_is_file) {
+            // 'to' is a file node; open the file and set as output_fd
+            const FileNode &fileNode = fileNodes[flow_pipe.to];
+            int file_fd = open(fileNode.filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+            if (file_fd == -1) {
+                perror("[ERROR] open failed");
+                exit(EXIT_FAILURE);
+            }
+            execute_action(flow_pipe.from, input_fd, file_fd, suppress_error_messages);
+            close(file_fd);
+        } else {
+            // Regular pipe between two actions
+            int fd[2];
+            if (pipe(fd) == -1) {
+                perror("[ERROR] pipe creation failed");
+                exit(EXIT_FAILURE);
+            }
+
+            pid_t pid = fork();
+            if (pid == -1) {
+                perror("[ERROR] fork failed");
+                exit(EXIT_FAILURE);
+            }
+
+            if (pid == 0) {  // Child process
+                close(fd[0]);  // Close read end
+                execute_action(flow_pipe.from, input_fd, fd[1], suppress_error_messages);
+                close(fd[1]);
+                exit(EXIT_SUCCESS);
+            } else {
+                close(fd[1]);  // Close write end
+                execute_action(flow_pipe.to, fd[0], output_fd, suppress_error_messages);
+                close(fd[0]);
+                waitpid(pid, nullptr, 0);
+            }
+        }
     } else if (concatenations.find(action_name) != concatenations.end()) {
-        execute_concatenation(action_name, output_fd, suppress_error_messages);
+        const Concatenation &concat = concatenations[action_name];
+        for (const auto &part_name : concat.parts) {
+            execute_action(part_name, input_fd, output_fd, suppress_error_messages);
+        }
     } else if (stderrCaptures.find(action_name) != stderrCaptures.end()) {
-        execute_stderr_capture(action_name, output_fd, suppress_error_messages);
+        const StderrCapture &stderrCapture = stderrCaptures[action_name];
+        // Redirect stderr to stdout
+        int fd[2];
+        if (pipe(fd) == -1) {
+            perror("[ERROR] pipe failed");
+            exit(EXIT_FAILURE);
+        }
+
+        pid_t pid = fork();
+        if (pid == -1) {
+            perror("[ERROR] fork failed");
+            exit(EXIT_FAILURE);
+        }
+
+        if (pid == 0) {  // Child process
+            dup2(fd[1], STDOUT_FILENO);
+            dup2(fd[1], STDERR_FILENO);
+            close(fd[0]);
+            close(fd[1]);
+            execute_action(stderrCapture.from, input_fd, STDOUT_FILENO, true);
+            exit(EXIT_FAILURE);
+        } else {
+            close(fd[1]);
+            execute_command({"cat"}, fd[0], output_fd, false, suppress_error_messages);
+            close(fd[0]);
+            waitpid(pid, nullptr, 0);
+        }
     } else if (fileNodes.find(action_name) != fileNodes.end()) {
-        execute_file_node(action_name, output_fd, suppress_error_messages);
+        // For file nodes, output the file content
+        const FileNode &fileNode = fileNodes[action_name];
+        int file_fd = open(fileNode.filename.c_str(), O_RDONLY);
+        if (file_fd == -1) {
+            perror("[ERROR] open failed");
+            exit(EXIT_FAILURE);
+        }
+        execute_command({"cat"}, file_fd, output_fd, false, suppress_error_messages);
+        close(file_fd);
     } else {
         std::cerr << "[ERROR] Unknown action: " << action_name << std::endl;
         exit(EXIT_FAILURE);
     }
-}
-
-/**
- * Function to execute a pipe.
- */
-void execute_pipe(const std::string &pipe_name, int output_fd, bool suppress_error_messages) {
-    auto it = pipes.find(pipe_name);
-    if (it == pipes.end()) {
-        std::cerr << "[ERROR] Pipe not found: " << pipe_name << std::endl;
-        exit(EXIT_FAILURE);
-    }
-
-    const FlowPipe &flow_pipe = it->second;
-
-    // Handle if 'from' or 'to' is a file node
-    bool from_is_file = fileNodes.find(flow_pipe.from) != fileNodes.end();
-    bool to_is_file = fileNodes.find(flow_pipe.to) != fileNodes.end();
-
-    if (from_is_file && to_is_file) {
-        std::cerr << "[ERROR] Both 'from' and 'to' cannot be file nodes in pipe: " << pipe_name << std::endl;
-        exit(EXIT_FAILURE);
-    }
-
-    if (from_is_file) {
-        // 'from' is a file node; redirect file contents to 'to' action
-        auto file_it = fileNodes.find(flow_pipe.from);
-        const FileNode &fileNode = file_it->second;
-
-        pid_t pid = fork();
-        if (pid == -1) {
-            perror("[ERROR] fork failed");
-            exit(EXIT_FAILURE);
-        } else if (pid == 0) { // Child process
-            // Open the file for reading
-            int fd = open(fileNode.filename.c_str(), O_RDONLY);
-            if (fd == -1) {
-                perror("[ERROR] open failed");
-                exit(EXIT_FAILURE);
-            }
-            // Redirect file to stdin
-            if (dup2(fd, STDIN_FILENO) == -1) {
-                perror("[ERROR] dup2 failed");
-                close(fd);
-                exit(EXIT_FAILURE);
-            }
-            close(fd);
-
-            // Redirect output if necessary
-            if (output_fd != STDOUT_FILENO) {
-                if (dup2(output_fd, STDOUT_FILENO) == -1) {
-                    perror("[ERROR] dup2 failed");
-                    exit(EXIT_FAILURE);
-                }
-                close(output_fd);
-            }
-
-            // Execute the 'to' action
-            execute_action(flow_pipe.to, STDOUT_FILENO, suppress_error_messages);
-            _exit(EXIT_FAILURE);
-        }
-
-        // Parent process waits for the child
-        int status;
-        waitpid(pid, &status, 0);
-    } else if (to_is_file) {
-        // 'to' is a file node; redirect output of 'from' action to file
-        auto file_it = fileNodes.find(flow_pipe.to);
-        const FileNode &fileNode = file_it->second;
-
-        // Open the file for writing
-        int fd = open(fileNode.filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
-        if (fd == -1) {
-            perror("[ERROR] open failed");
-            exit(EXIT_FAILURE);
-        }
-
-        // Execute 'from' action, redirecting its output to the file
-        pid_t pid = fork();
-        if (pid == -1) {
-            perror("[ERROR] fork failed");
-            close(fd);
-            exit(EXIT_FAILURE);
-        } else if (pid == 0) { // Child process
-            // Redirect stdout to file
-            if (dup2(fd, STDOUT_FILENO) == -1) {
-                perror("[ERROR] dup2 failed");
-                close(fd);
-                exit(EXIT_FAILURE);
-            }
-            close(fd);
-
-            // Execute the 'from' action
-            execute_action(flow_pipe.from, STDOUT_FILENO, suppress_error_messages);
-            _exit(EXIT_FAILURE);
-        }
-
-        close(fd);
-
-        // Parent process waits for the child
-        int status;
-        waitpid(pid, &status, 0);
-    } else {
-        // Regular pipe between two actions
-        int fd[2];
-        if (pipe(fd) == -1) {
-            perror("[ERROR] pipe creation failed");
-            exit(EXIT_FAILURE);
-        }
-
-        pid_t pid_to = fork();
-        if (pid_to == -1) {
-            perror("[ERROR] fork failed");
-            exit(EXIT_FAILURE);
-        } else if (pid_to == 0) {  // Child process for 'to'
-            close(fd[1]);  // Close write end
-            if (dup2(fd[0], STDIN_FILENO) == -1) {
-                perror("[ERROR] dup2 failed");
-                exit(EXIT_FAILURE);
-            }
-            close(fd[0]);
-
-            if (output_fd != STDOUT_FILENO) {
-                // Redirect output if necessary
-                if (dup2(output_fd, STDOUT_FILENO) == -1) {
-                    perror("[ERROR] dup2 failed");
-                    exit(EXIT_FAILURE);
-                }
-                close(output_fd);
-            }
-
-            execute_action(flow_pipe.to, STDOUT_FILENO, suppress_error_messages);
-            _exit(EXIT_FAILURE);
-        }
-
-        pid_t pid_from = fork();
-        if (pid_from == -1) {
-            perror("[ERROR] fork failed");
-            exit(EXIT_FAILURE);
-        } else if (pid_from == 0) {  // Child process for 'from'
-            close(fd[0]);  // Close read end
-            if (dup2(fd[1], STDOUT_FILENO) == -1) {
-                perror("[ERROR] dup2 failed");
-                exit(EXIT_FAILURE);
-            }
-            close(fd[1]);
-
-            execute_action(flow_pipe.from, STDOUT_FILENO, suppress_error_messages);
-            _exit(EXIT_FAILURE);
-        }
-
-        // Parent process closes unused pipe ends and waits for child processes
-        close(fd[0]);
-        close(fd[1]);
-
-        int status;
-        waitpid(pid_from, &status, 0);
-        waitpid(pid_to, &status, 0);
-    }
-}
-
-/**
- * Function to execute a stderr capture.
- */
-void execute_stderr_capture(const std::string &stderr_name, int output_fd, bool suppress_error_messages) {
-    auto it = stderrCaptures.find(stderr_name);
-    if (it == stderrCaptures.end()) {
-        std::cerr << "[ERROR] Stderr capture not found: " << stderr_name << std::endl;
-        exit(EXIT_FAILURE);
-    }
-
-    const StderrCapture &stderrCapture = it->second;
-
-    // Execute the 'from' action, redirecting its stderr to stdout
-    pid_t pid = fork();
-    if (pid == -1) {
-        perror("[ERROR] fork failed");
-        exit(EXIT_FAILURE);
-    }
-
-    if (pid == 0) { // Child process
-        // Redirect stderr to stdout
-        if (dup2(STDOUT_FILENO, STDERR_FILENO) == -1) {
-            perror("[ERROR] dup2 failed");
-            exit(EXIT_FAILURE);
-        }
-
-        if (output_fd != STDOUT_FILENO) {
-            // Redirect output if necessary
-            if (dup2(output_fd, STDOUT_FILENO) == -1) {
-                perror("[ERROR] dup2 failed");
-                exit(EXIT_FAILURE);
-            }
-            close(output_fd);
-        }
-
-        // Execute the 'from' action with suppress_error_messages = true
-        execute_action(stderrCapture.from, STDOUT_FILENO, true);
-        _exit(EXIT_FAILURE);
-    }
-
-    // Parent process waits for the child
-    int status;
-    waitpid(pid, &status, 0);
-}
-
-/**
- * Function to execute a file node.
- */
-void execute_file_node(const std::string &file_node_name, int output_fd, bool suppress_error_messages) {
-    auto it = fileNodes.find(file_node_name);
-    if (it == fileNodes.end()) {
-        std::cerr << "[ERROR] File node not found: " << file_node_name << std::endl;
-        exit(EXIT_FAILURE);
-    }
-
-    const FileNode &fileNode = it->second;
-
-    // For file nodes, we can output the file content if used directly
-    pid_t pid = fork();
-    if (pid == -1) {
-        perror("[ERROR] fork failed");
-        exit(EXIT_FAILURE);
-    }
-
-    if (pid == 0) { // Child process
-        // Open the file for reading
-        int fd = open(fileNode.filename.c_str(), O_RDONLY);
-        if (fd == -1) {
-            perror("[ERROR] open failed");
-            exit(EXIT_FAILURE);
-        }
-        // Redirect file to stdin
-        if (dup2(fd, STDIN_FILENO) == -1) {
-            perror("[ERROR] dup2 failed");
-            close(fd);
-            exit(EXIT_FAILURE);
-        }
-        close(fd);
-
-        if (output_fd != STDOUT_FILENO) {
-            // Redirect output if necessary
-            if (dup2(output_fd, STDOUT_FILENO) == -1) {
-                perror("[ERROR] dup2 failed");
-                exit(EXIT_FAILURE);
-            }
-            close(output_fd);
-        }
-
-        // Execute 'cat' to output file contents
-        execlp("cat", "cat", (char *)NULL);
-        perror("[ERROR] execlp failed");
-        exit(EXIT_FAILURE);
-    }
-
-    // Parent process waits for the child
-    int status;
-    waitpid(pid, &status, 0);
 }
 
 /**
@@ -557,7 +346,6 @@ void parse_flow_file(const std::string& filename) {
             fileNode.filename = filename;
             fileNodes[file_name] = fileNode;
         }
-        // Ignore other lines or add more parsing as needed
     }
 }
 
@@ -577,7 +365,7 @@ int main(int argc, char* argv[]) {
     parse_flow_file(flowFile);
 
     // Execute the action
-    execute_action(action, STDOUT_FILENO);
+    execute_action(action);
 
     return EXIT_SUCCESS;
 }

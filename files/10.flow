@@ -1,0 +1,18 @@
+node=echo1
+command=echo foo1
+
+node=echo2
+command=echo 'foo2'
+
+node=echo3
+command=echo "foo3"
+
+node=echo4
+command=echo 'f o o 4'
+
+concatenate=doit
+parts=4
+part_0=echo1
+part_1=echo2
+part_2=echo3
+part_3=echo4

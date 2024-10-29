@@ -1,0 +1,8 @@
+node=mkdir_attempt
+command=mkdir a
+
+node=word_count
+command=wc
+
+stderr=doit
+from=mkdir_attempt

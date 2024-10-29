@@ -1,0 +1,9 @@
+node=list_files_l
+command=ls -l
+
+node=list_files
+command=ls
+
+pipe=doit
+from=list_files_l
+to=list_files
