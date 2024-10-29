@@ -13,7 +13,7 @@ command=echo "foo"
 node=echo5
 command=echo 'f o o'
 
-concatenate=concat_echoes
+concatenate=doit
 parts=5
 part_0=echo1
 part_1=echo2

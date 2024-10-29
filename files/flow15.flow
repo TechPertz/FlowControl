@@ -4,6 +4,6 @@ command=ls -l
 file=output_file
 name=output.txt
 
-pipe=process_pipe
+pipe=doit
 from=list_files
 to=output_file

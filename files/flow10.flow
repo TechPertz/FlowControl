@@ -31,7 +31,7 @@ part_0=cmd_one
 part_1=concat_nested
 part_2=cmd_four
 
-concatenate=concat_ultimate
+concatenate=doit
 parts=2
 part_0=concat_super_nested
 part_1=concat_basic

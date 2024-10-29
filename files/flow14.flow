@@ -8,6 +8,6 @@ pipe=write_pipe
 from=list_files
 to=output_file
 
-pipe=process_pipe
+pipe=doit
 from=list_files
 to=write_pipe

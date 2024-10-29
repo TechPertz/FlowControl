@@ -11,6 +11,6 @@ pipe=pipe2
 from=list_files
 to=filter_cpp_files
 
-pipe=pipe3
+pipe=doit
 from=pipe2
 to=count_files

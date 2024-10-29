@@ -16,6 +16,6 @@ part_1=foo_to_fuu
 node=word_count
 command=wc
 
-pipe=shenanigan
+pipe=doit
 from=foo_then_fuu
 to=word_count
