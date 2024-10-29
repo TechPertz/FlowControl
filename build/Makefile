@@ -127,54 +127,54 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named mix
+# Target rules for targets named mix2
 
 # Build rule for target.
-mix: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 mix
-.PHONY : mix
+mix2: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 mix2
+.PHONY : mix2
 
 # fast build rule for target.
-mix/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/mix.dir/build.make CMakeFiles/mix.dir/build
-.PHONY : mix/fast
+mix2/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mix2.dir/build.make CMakeFiles/mix2.dir/build
+.PHONY : mix2/fast
 
 #=============================================================================
-# Target rules for targets named clean_mix
+# Target rules for targets named clean_mix2
 
 # Build rule for target.
-clean_mix: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 clean_mix
-.PHONY : clean_mix
+clean_mix2: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 clean_mix2
+.PHONY : clean_mix2
 
 # fast build rule for target.
-clean_mix/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/clean_mix.dir/build.make CMakeFiles/clean_mix.dir/build
-.PHONY : clean_mix/fast
+clean_mix2/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clean_mix2.dir/build.make CMakeFiles/clean_mix2.dir/build
+.PHONY : clean_mix2/fast
 
-src/mix.o: src/mix.cpp.o
-.PHONY : src/mix.o
+src/mix2.o: src/mix2.cpp.o
+.PHONY : src/mix2.o
 
 # target to build an object file
-src/mix.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/mix.dir/build.make CMakeFiles/mix.dir/src/mix.cpp.o
-.PHONY : src/mix.cpp.o
+src/mix2.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mix2.dir/build.make CMakeFiles/mix2.dir/src/mix2.cpp.o
+.PHONY : src/mix2.cpp.o
 
-src/mix.i: src/mix.cpp.i
-.PHONY : src/mix.i
+src/mix2.i: src/mix2.cpp.i
+.PHONY : src/mix2.i
 
 # target to preprocess a source file
-src/mix.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/mix.dir/build.make CMakeFiles/mix.dir/src/mix.cpp.i
-.PHONY : src/mix.cpp.i
+src/mix2.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mix2.dir/build.make CMakeFiles/mix2.dir/src/mix2.cpp.i
+.PHONY : src/mix2.cpp.i
 
-src/mix.s: src/mix.cpp.s
-.PHONY : src/mix.s
+src/mix2.s: src/mix2.cpp.s
+.PHONY : src/mix2.s
 
 # target to generate assembly for a file
-src/mix.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/mix.dir/build.make CMakeFiles/mix.dir/src/mix.cpp.s
-.PHONY : src/mix.cpp.s
+src/mix2.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mix2.dir/build.make CMakeFiles/mix2.dir/src/mix2.cpp.s
+.PHONY : src/mix2.cpp.s
 
 # Help Target
 help:
@@ -185,11 +185,11 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... test"
-	@echo "... clean_mix"
-	@echo "... mix"
-	@echo "... src/mix.o"
-	@echo "... src/mix.i"
-	@echo "... src/mix.s"
+	@echo "... clean_mix2"
+	@echo "... mix2"
+	@echo "... src/mix2.o"
+	@echo "... src/mix2.i"
+	@echo "... src/mix2.s"
 .PHONY : help
 
 

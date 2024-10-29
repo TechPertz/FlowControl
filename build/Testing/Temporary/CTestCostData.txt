@@ -1,10 +1,13 @@
-Test_files/flow1_flow 2 0.01314
-Test_files/flow2_flow 2 0.0163293
-Test_files/flow3_flow 2 0.0147791
-Test_files/flow4_flow 2 0.0129398
-Test_files/flow5_flow 2 0.0129517
-Test_files/flow8_flow 2 0.0122651
-Test_files/flow9_flow 2 0.00781264
-Test_files/flow10_flow 2 0.00760463
-Test_files/flow11_flow 2 0.0159495
+Test_files/flow1_flow 1 0.0309353
+Test_files/flow2_flow 1 0.0369551
+Test_files/flow3_flow 1 0.030214
+Test_files/flow4_flow 1 0.0275901
+Test_files/flow5_flow 1 0.0274874
+Test_files/flow8_flow 1 0.0297966
+Test_files/flow9_flow 1 0.0202478
+Test_files/flow10_flow 1 0.0207895
+Test_files/flow11_flow 1 0.0463894
+Test_files/flow12_flow 1 0.0264338
+Test_files/flow14_flow 1 0.0211962
+Test_files/flow13_flow 1 0.0265988
 ---

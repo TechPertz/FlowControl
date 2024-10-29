@@ -63,8 +63,8 @@ CMAKE_BINARY_DIR = /Users/reetnandy/vscode/OS_HW_2/build
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
-all: CMakeFiles/mix.dir/all
-all: CMakeFiles/clean_mix.dir/all
+all: CMakeFiles/mix2.dir/all
+all: CMakeFiles/clean_mix2.dir/all
 .PHONY : all
 
 # The main recursive "preinstall" target.
@@ -72,61 +72,61 @@ preinstall:
 .PHONY : preinstall
 
 # The main recursive "clean" target.
-clean: CMakeFiles/mix.dir/clean
-clean: CMakeFiles/clean_mix.dir/clean
+clean: CMakeFiles/mix2.dir/clean
+clean: CMakeFiles/clean_mix2.dir/clean
 .PHONY : clean
 
 #=============================================================================
-# Target rules for target CMakeFiles/mix.dir
+# Target rules for target CMakeFiles/mix2.dir
 
 # All Build rule for target.
-CMakeFiles/mix.dir/all: CMakeFiles/clean_mix.dir/all
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/mix.dir/build.make CMakeFiles/mix.dir/depend
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/mix.dir/build.make CMakeFiles/mix.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/reetnandy/vscode/OS_HW_2/build/CMakeFiles --progress-num=2,3 "Built target mix"
-.PHONY : CMakeFiles/mix.dir/all
+CMakeFiles/mix2.dir/all: CMakeFiles/clean_mix2.dir/all
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mix2.dir/build.make CMakeFiles/mix2.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mix2.dir/build.make CMakeFiles/mix2.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/reetnandy/vscode/OS_HW_2/build/CMakeFiles --progress-num=2,3 "Built target mix2"
+.PHONY : CMakeFiles/mix2.dir/all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/mix.dir/rule: cmake_check_build_system
+CMakeFiles/mix2.dir/rule: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/reetnandy/vscode/OS_HW_2/build/CMakeFiles 3
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/mix.dir/all
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/mix2.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/reetnandy/vscode/OS_HW_2/build/CMakeFiles 0
-.PHONY : CMakeFiles/mix.dir/rule
+.PHONY : CMakeFiles/mix2.dir/rule
 
 # Convenience name for target.
-mix: CMakeFiles/mix.dir/rule
-.PHONY : mix
+mix2: CMakeFiles/mix2.dir/rule
+.PHONY : mix2
 
 # clean rule for target.
-CMakeFiles/mix.dir/clean:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/mix.dir/build.make CMakeFiles/mix.dir/clean
-.PHONY : CMakeFiles/mix.dir/clean
+CMakeFiles/mix2.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mix2.dir/build.make CMakeFiles/mix2.dir/clean
+.PHONY : CMakeFiles/mix2.dir/clean
 
 #=============================================================================
-# Target rules for target CMakeFiles/clean_mix.dir
+# Target rules for target CMakeFiles/clean_mix2.dir
 
 # All Build rule for target.
-CMakeFiles/clean_mix.dir/all:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/clean_mix.dir/build.make CMakeFiles/clean_mix.dir/depend
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/clean_mix.dir/build.make CMakeFiles/clean_mix.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/reetnandy/vscode/OS_HW_2/build/CMakeFiles --progress-num=1 "Built target clean_mix"
-.PHONY : CMakeFiles/clean_mix.dir/all
+CMakeFiles/clean_mix2.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clean_mix2.dir/build.make CMakeFiles/clean_mix2.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clean_mix2.dir/build.make CMakeFiles/clean_mix2.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/reetnandy/vscode/OS_HW_2/build/CMakeFiles --progress-num=1 "Built target clean_mix2"
+.PHONY : CMakeFiles/clean_mix2.dir/all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/clean_mix.dir/rule: cmake_check_build_system
+CMakeFiles/clean_mix2.dir/rule: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/reetnandy/vscode/OS_HW_2/build/CMakeFiles 1
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/clean_mix.dir/all
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/clean_mix2.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/reetnandy/vscode/OS_HW_2/build/CMakeFiles 0
-.PHONY : CMakeFiles/clean_mix.dir/rule
+.PHONY : CMakeFiles/clean_mix2.dir/rule
 
 # Convenience name for target.
-clean_mix: CMakeFiles/clean_mix.dir/rule
-.PHONY : clean_mix
+clean_mix2: CMakeFiles/clean_mix2.dir/rule
+.PHONY : clean_mix2
 
 # clean rule for target.
-CMakeFiles/clean_mix.dir/clean:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/clean_mix.dir/build.make CMakeFiles/clean_mix.dir/clean
-.PHONY : CMakeFiles/clean_mix.dir/clean
+CMakeFiles/clean_mix2.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clean_mix2.dir/build.make CMakeFiles/clean_mix2.dir/clean
+.PHONY : CMakeFiles/clean_mix2.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

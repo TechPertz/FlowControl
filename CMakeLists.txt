@@ -6,19 +6,19 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Add the executable for 'mix.cpp'
-add_executable(mix src/mix.cpp)
+add_executable(mix2 src/mix2.cpp)
 
 # Remove this line so the executable is generated in the same directory as CMakeLists.txt
 # set_target_properties(mix PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/build")
 
 # Add a custom target to remove the old 'mix' executable if it exists
-add_custom_target(clean_mix ALL
-    COMMAND rm -rf ${CMAKE_SOURCE_DIR}/mix
-    COMMENT "Removing old mix executable if it exists"
+add_custom_target(clean_mix2 ALL
+    COMMAND rm -rf ${CMAKE_SOURCE_DIR}/mix2
+    COMMENT "Removing old mix2 executable if it exists"
 )
 
 # Ensure that 'clean_mix' runs before building the 'mix' executable
-add_dependencies(mix clean_mix)
+add_dependencies(mix2 clean_mix2)
 
 # Enable testing
 enable_testing()
@@ -34,6 +34,9 @@ set(FLOW_FILES
     files/flow9.flow
     files/flow10.flow
     files/flow11.flow
+    files/flow12.flow
+    files/flow14.flow
+    files/flow13.flow
 )
 
 set(ACTION_NAMES
@@ -46,6 +49,9 @@ set(ACTION_NAMES
     concat_echoes
     concat_ultimate
     unique_numbers
+    catch_errors
+    process_pipe
+    process_pipe
 )
 
 set(EXPECTED_COMMANDS
@@ -58,6 +64,9 @@ set(EXPECTED_COMMANDS
     "echo 'f o o' \; echo 'f o o' \; echo 'f o o' \; echo 'f o o' \; echo 'f o o'"   # flow9.flow
     "echo 'Command One Executed.' \; echo 'Command One Executed.' \; echo 'Command Two Executed.' \; echo 'Command Three Executed.' \; echo 'Command Four Executed.' \; echo 'Command Four Executed.' \; echo 'Command One Executed.' \; echo 'Command Two Executed.'"   # flow10.flow
     "(seq 1 5 | awk '{print \$1*\$1}' \; seq 1 5 | awk '{print \$1*2}' \; seq 1 5 | awk '{print \$1+5}') | sort -n | uniq"   # flow11.flow
+    "mkdir a 2>&1 | wc" # flow12.flow
+    "ls > output.txt" # flow14.flow 
+    "cat output.txt | wc" # flow13.flow 
 )
 
 # Ensure the lengths of the lists match

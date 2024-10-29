@@ -8,7 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/Users/reetnandy/vscode/OS_HW_2/src/mix.cpp" "CMakeFiles/mix.dir/src/mix.cpp.o" "gcc" "CMakeFiles/mix.dir/src/mix.cpp.o.d"
+  "/Users/reetnandy/vscode/OS_HW_2/src/mix2.cpp" "CMakeFiles/mix2.dir/src/mix2.cpp.o" "gcc" "CMakeFiles/mix2.dir/src/mix2.cpp.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

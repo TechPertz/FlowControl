@@ -1,0 +1,13 @@
+node=list_files
+command=ls
+
+file=output_file
+name=output.txt
+
+pipe=write_pipe
+from=list_files
+to=output_file
+
+pipe=process_pipe
+from=list_files
+to=write_pipe

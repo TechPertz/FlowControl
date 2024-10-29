@@ -15,7 +15,7 @@ add_test(Test_files/flow1_flow "bash" "-c" "
             echo '--- Expected Output ---';
             cat Test_files/flow1_flow_expected_output.txt;
         ")
-set_tests_properties(Test_files/flow1_flow PROPERTIES  PASS_REGULAR_EXPRESSION ".*" _BACKTRACE_TRIPLES "/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;93;add_test;/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;0;")
+set_tests_properties(Test_files/flow1_flow PROPERTIES  PASS_REGULAR_EXPRESSION ".*" _BACKTRACE_TRIPLES "/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;102;add_test;/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;0;")
 add_test(Test_files/flow2_flow "bash" "-c" "
             echo '=== Running Test_files/flow2_flow ===';
             echo 'Running mix with files/flow2.flow:';
@@ -27,7 +27,7 @@ add_test(Test_files/flow2_flow "bash" "-c" "
             echo '--- Expected Output ---';
             cat Test_files/flow2_flow_expected_output.txt;
         ")
-set_tests_properties(Test_files/flow2_flow PROPERTIES  PASS_REGULAR_EXPRESSION ".*" _BACKTRACE_TRIPLES "/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;93;add_test;/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;0;")
+set_tests_properties(Test_files/flow2_flow PROPERTIES  PASS_REGULAR_EXPRESSION ".*" _BACKTRACE_TRIPLES "/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;102;add_test;/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;0;")
 add_test(Test_files/flow3_flow "bash" "-c" "
             echo '=== Running Test_files/flow3_flow ===';
             echo 'Running mix with files/flow3.flow:';
@@ -39,7 +39,7 @@ add_test(Test_files/flow3_flow "bash" "-c" "
             echo '--- Expected Output ---';
             cat Test_files/flow3_flow_expected_output.txt;
         ")
-set_tests_properties(Test_files/flow3_flow PROPERTIES  PASS_REGULAR_EXPRESSION ".*" _BACKTRACE_TRIPLES "/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;93;add_test;/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;0;")
+set_tests_properties(Test_files/flow3_flow PROPERTIES  PASS_REGULAR_EXPRESSION ".*" _BACKTRACE_TRIPLES "/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;102;add_test;/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;0;")
 add_test(Test_files/flow4_flow "bash" "-c" "
             echo '=== Running Test_files/flow4_flow ===';
             echo 'Running mix with files/flow4.flow:';
@@ -51,7 +51,7 @@ add_test(Test_files/flow4_flow "bash" "-c" "
             echo '--- Expected Output ---';
             cat Test_files/flow4_flow_expected_output.txt;
         ")
-set_tests_properties(Test_files/flow4_flow PROPERTIES  PASS_REGULAR_EXPRESSION ".*" _BACKTRACE_TRIPLES "/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;93;add_test;/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;0;")
+set_tests_properties(Test_files/flow4_flow PROPERTIES  PASS_REGULAR_EXPRESSION ".*" _BACKTRACE_TRIPLES "/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;102;add_test;/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;0;")
 add_test(Test_files/flow5_flow "bash" "-c" "
             echo '=== Running Test_files/flow5_flow ===';
             echo 'Running mix with files/flow5.flow:';
@@ -63,7 +63,7 @@ add_test(Test_files/flow5_flow "bash" "-c" "
             echo '--- Expected Output ---';
             cat Test_files/flow5_flow_expected_output.txt;
         ")
-set_tests_properties(Test_files/flow5_flow PROPERTIES  PASS_REGULAR_EXPRESSION ".*" _BACKTRACE_TRIPLES "/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;93;add_test;/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;0;")
+set_tests_properties(Test_files/flow5_flow PROPERTIES  PASS_REGULAR_EXPRESSION ".*" _BACKTRACE_TRIPLES "/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;102;add_test;/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;0;")
 add_test(Test_files/flow8_flow "bash" "-c" "
             echo '=== Running Test_files/flow8_flow ===';
             echo 'Running mix with files/flow8.flow:';
@@ -75,7 +75,7 @@ add_test(Test_files/flow8_flow "bash" "-c" "
             echo '--- Expected Output ---';
             cat Test_files/flow8_flow_expected_output.txt;
         ")
-set_tests_properties(Test_files/flow8_flow PROPERTIES  PASS_REGULAR_EXPRESSION ".*" _BACKTRACE_TRIPLES "/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;93;add_test;/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;0;")
+set_tests_properties(Test_files/flow8_flow PROPERTIES  PASS_REGULAR_EXPRESSION ".*" _BACKTRACE_TRIPLES "/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;102;add_test;/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;0;")
 add_test(Test_files/flow9_flow "bash" "-c" "
             echo '=== Running Test_files/flow9_flow ===';
             echo 'Running mix with files/flow9.flow:';
@@ -87,7 +87,7 @@ add_test(Test_files/flow9_flow "bash" "-c" "
             echo '--- Expected Output ---';
             cat Test_files/flow9_flow_expected_output.txt;
         ")
-set_tests_properties(Test_files/flow9_flow PROPERTIES  PASS_REGULAR_EXPRESSION ".*" _BACKTRACE_TRIPLES "/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;93;add_test;/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;0;")
+set_tests_properties(Test_files/flow9_flow PROPERTIES  PASS_REGULAR_EXPRESSION ".*" _BACKTRACE_TRIPLES "/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;102;add_test;/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;0;")
 add_test(Test_files/flow10_flow "bash" "-c" "
             echo '=== Running Test_files/flow10_flow ===';
             echo 'Running mix with files/flow10.flow:';
@@ -99,7 +99,7 @@ add_test(Test_files/flow10_flow "bash" "-c" "
             echo '--- Expected Output ---';
             cat Test_files/flow10_flow_expected_output.txt;
         ")
-set_tests_properties(Test_files/flow10_flow PROPERTIES  PASS_REGULAR_EXPRESSION ".*" _BACKTRACE_TRIPLES "/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;93;add_test;/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;0;")
+set_tests_properties(Test_files/flow10_flow PROPERTIES  PASS_REGULAR_EXPRESSION ".*" _BACKTRACE_TRIPLES "/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;102;add_test;/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;0;")
 add_test(Test_files/flow11_flow "bash" "-c" "
             echo '=== Running Test_files/flow11_flow ===';
             echo 'Running mix with files/flow11.flow:';
@@ -111,4 +111,40 @@ add_test(Test_files/flow11_flow "bash" "-c" "
             echo '--- Expected Output ---';
             cat Test_files/flow11_flow_expected_output.txt;
         ")
-set_tests_properties(Test_files/flow11_flow PROPERTIES  PASS_REGULAR_EXPRESSION ".*" _BACKTRACE_TRIPLES "/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;93;add_test;/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;0;")
+set_tests_properties(Test_files/flow11_flow PROPERTIES  PASS_REGULAR_EXPRESSION ".*" _BACKTRACE_TRIPLES "/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;102;add_test;/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;0;")
+add_test(Test_files/flow12_flow "bash" "-c" "
+            echo '=== Running Test_files/flow12_flow ===';
+            echo 'Running mix with files/flow12.flow:';
+            /Users/reetnandy/vscode/OS_HW_2/mix files/flow12.flow catch_errors > Test_files/flow12_flow_actual_output.txt;
+            echo 'Expected output from command:';
+            mkdir a 2>&1 | wc > Test_files/flow12_flow_expected_output.txt;
+            echo '--- Actual Output ---';
+            cat Test_files/flow12_flow_actual_output.txt;
+            echo '--- Expected Output ---';
+            cat Test_files/flow12_flow_expected_output.txt;
+        ")
+set_tests_properties(Test_files/flow12_flow PROPERTIES  PASS_REGULAR_EXPRESSION ".*" _BACKTRACE_TRIPLES "/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;102;add_test;/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;0;")
+add_test(Test_files/flow14_flow "bash" "-c" "
+            echo '=== Running Test_files/flow14_flow ===';
+            echo 'Running mix with files/flow14.flow:';
+            /Users/reetnandy/vscode/OS_HW_2/mix files/flow14.flow process_pipe > Test_files/flow14_flow_actual_output.txt;
+            echo 'Expected output from command:';
+            ls > output.txt > Test_files/flow14_flow_expected_output.txt;
+            echo '--- Actual Output ---';
+            cat Test_files/flow14_flow_actual_output.txt;
+            echo '--- Expected Output ---';
+            cat Test_files/flow14_flow_expected_output.txt;
+        ")
+set_tests_properties(Test_files/flow14_flow PROPERTIES  PASS_REGULAR_EXPRESSION ".*" _BACKTRACE_TRIPLES "/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;102;add_test;/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;0;")
+add_test(Test_files/flow13_flow "bash" "-c" "
+            echo '=== Running Test_files/flow13_flow ===';
+            echo 'Running mix with files/flow13.flow:';
+            /Users/reetnandy/vscode/OS_HW_2/mix files/flow13.flow process_pipe > Test_files/flow13_flow_actual_output.txt;
+            echo 'Expected output from command:';
+            cat output.txt | wc > Test_files/flow13_flow_expected_output.txt;
+            echo '--- Actual Output ---';
+            cat Test_files/flow13_flow_actual_output.txt;
+            echo '--- Expected Output ---';
+            cat Test_files/flow13_flow_expected_output.txt;
+        ")
+set_tests_properties(Test_files/flow13_flow PROPERTIES  PASS_REGULAR_EXPRESSION ".*" _BACKTRACE_TRIPLES "/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;102;add_test;/Users/reetnandy/vscode/OS_HW_2/CMakeLists.txt;0;")
