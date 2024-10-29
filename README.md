@@ -1,15 +1,11 @@
 # OS_HW_2
-Operating System Homework 2
 
-flow5 can parse pipes normally.
-flow6 can 2 nodes and 1node,1pipe
-flow7 improved but same.
-flow8 hadles concatenation.
-mix mix.
+## To test:
 
+1. Download and extract this repository.
+2. Run "python3 run.py"
 
-
-Test Cases
+### Test Cases
 0: just one node in any .flow file
 
 1: ls | wc      // normal pipe
