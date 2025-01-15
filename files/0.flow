@@ -1,7 +1,7 @@
 node=list_files
 command=ls
 
-node-word_count
+node=word_count
 command=wc
 
 node=path
