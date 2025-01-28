@@ -1,0 +1,11 @@
+node=list_files
+command=ls
+
+node=list_files_1
+command=ls -a
+
+concatenate=doit
+parts=3
+part_0=list_files
+part_1=list_files
+part_2=list_files_1

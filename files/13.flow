@@ -1,0 +1,43 @@
+node=generate_numbers
+command=seq 1 5
+
+node=square_numbers
+command=awk '{print $1*$1}'
+
+node=double_numbers
+command=awk '{print $1*2}'
+
+node=add_five
+command=awk '{print $1+5}'
+
+node=sort_numbers
+command=sort -n
+
+node=remove_duplicates
+command=uniq
+
+pipe=square_pipe
+from=generate_numbers
+to=square_numbers
+
+pipe=double_pipe
+from=generate_numbers
+to=double_numbers
+
+pipe=add_five_pipe
+from=generate_numbers
+to=add_five
+
+concatenate=processed_numbers
+parts=3
+part_0=square_pipe
+part_1=double_pipe
+part_2=add_five_pipe
+
+pipe=sorted_numbers
+from=processed_numbers
+to=sort_numbers
+
+pipe=doit
+from=sorted_numbers
+to=remove_duplicates

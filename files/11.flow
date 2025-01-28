@@ -1,0 +1,17 @@
+node=list_files
+command=ls
+
+node=word_count
+command=wc
+
+node=path
+command=pwd
+
+pipe=pipe1
+from=list_files
+to=word_count
+
+concatenate=doit
+parts=2
+part_0=pipe1
+part_1=path

@@ -1,0 +1,9 @@
+node=foo
+command=echo "foo"
+
+node=cat
+command=cat
+
+pipe=doit
+from=foo
+to=cat
